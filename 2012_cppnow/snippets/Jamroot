@@ -1,0 +1,18 @@
+# ToDo: Kurze projektspezifische Hilfe oder Erklaerung schreiben.
+
+import os ;
+import modules ;
+import path ;
+
+path-constant BOOST_ROOT : [ os.environ BOOST_ROOT ] ; 
+path-constant ODEINT_ROOT : [ os.environ ODEINT_ROOT ] ;
+local boost-root = [ modules.peek : BOOST_ROOT ] ;
+
+project 
+    : requirements
+      <include>$(BOOST_ROOT) 
+      <include>$(ODEINT_ROOT)
+;
+
+exe example1 : example1.cpp ;
+exe example2_compileable : example2_compileable.cpp ;
