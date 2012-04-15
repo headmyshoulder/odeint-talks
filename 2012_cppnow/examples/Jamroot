@@ -18,3 +18,4 @@ project
     ;
     
 exe harmonic_oscillator : harmonic_oscillator.cpp ;
+exe bowl : bowl.cpp ;
