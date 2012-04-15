@@ -19,3 +19,4 @@ project
     
 exe harmonic_oscillator : harmonic_oscillator.cpp ;
 exe bowl : bowl.cpp ;
+exe nonlinear_pendulum : nonlinear_pendulum.cpp ;
