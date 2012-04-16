@@ -17,6 +17,11 @@ project
     <cxxflags>--std=c++0x 
     ;
     
-exe harmonic_oscillator : harmonic_oscillator.cpp ;
+
 exe bowl : bowl.cpp ;
+
+# pendulum and oscillator examples
+exe pendulum1 : pendulum1.cpp ;
+
+exe harmonic_oscillator : harmonic_oscillator.cpp ;
 exe nonlinear_pendulum : nonlinear_pendulum.cpp ;

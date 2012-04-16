@@ -13,11 +13,11 @@
 
 typedef std::array< double , 2 > state_type;
 
-class duffing
+class pendulum
 {
 public:
 
-    duffing( double mu , double omega , double epsilon )
+    pendulum( double mu , double omega , double epsilon )
     : m_mu( mu ) , m_omega( omega ) , m_epsilon( epsilon ) { }
 
     void operator()( const state_type &x , state_type &dxdt , double t ) const
@@ -52,7 +52,7 @@ int main( int argc , char **argv )
     using namespace boost::numeric::odeint;
     using namespace boost::phoenix::arg_names;
     state_type x = {{ 1.0 , 0.0 }};
-    duffing d( 0.1 , 1.05 , 0.0 );
+    pendulum d( 0.1 , 1.05 , 0.0 );
 //    duffing d( 0.1 , 1.05 , 1.5 );
 //    integrate_const( runge_kutta4< state_type >() , d , x , 0.0 , 1000.0 , 0.1 ,
 //            std::cout << arg2 << "\t" << arg1[0] << "\t" << arg1[1] << "\n" );

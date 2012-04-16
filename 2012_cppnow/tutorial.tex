@@ -33,7 +33,8 @@
  $\ddot{\varphi} = - g / l \sin \varphi $
  }
 
- \only<2>{
+ \only<2>
+ {
 
  $\ddot{\varphi} = - g / l \sin \varphi $
 
@@ -90,6 +91,98 @@
 
 
 \begin{frame}[fragile]
- 
+
+\centerline{ \Large Let's solve the pendulum example numerically}
+$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+
+\begin{lstlisting}
+#include <boost/numeric/odeint.hpp>
+
+namespace odeint = boost::numeric::odeint;
+\end{lstlisting}
+
+\begin{lstlisting}
+typedef std::array< double , 2 > state_type;
+\end{lstlisting}
+
+\begin{lstlisting}
+struct pendulum
+{
+  double m_mu , m_omega , m_epsilon;
+
+  pendulum( double mu , double omega , double epsilon )
+  : m_mu( mu ) , m_omega( omega ) , m_epsilon( epsilon ) { }
+
+  void operator()( const state_type &x , state_type &dxdt , double t ) const
+  {
+    dxdt[0] = x[1];
+    dxdt[1] = - sin( x[0] ) - m_mu * x[1] + m_epsilon * sin( m_omega * t );
+  }
+};
+\end{lstlisting}
 
 \end{frame}
+
+\begin{frame}[fragile]
+ \centerline{ \Large Let's solve the pendulum example numerically}
+
+$\varphi(0) = 1$, $\dot{\varphi}(0) = 0$
+
+\begin{lstlisting}
+odeint::euler< state_type > euler;
+pendulum p( 0.1 , 1.05 , 1.5 );
+
+state_type x = {{ 1.0 , 0.0 }};
+double t = 0.0;
+
+const double dt = 0.01;
+euler.do_step( p , x , t , dt );
+t += dt;
+\end{lstlisting}
+
+$x(0) \mapsto x(\Delta t)$
+
+\begin{lstlisting}
+std::cout << t << " " << x[0] << " " << x[1] << "\n";
+for( size_t i=0 ; i<10 ; ++i )
+{
+  euler.do_step( p , x , t , dt );
+  t += dt;
+  std::cout << t << " " << x[0] << " " << x[1] << "\n";
+}
+\end{lstlisting}
+
+$x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ Simulation
+
+ $\mu=0$, $\omega_E = 0$, $\varepsilon=0$
+
+ $\mu=0.1$, $\omega_E = 0$, $\varepsilon=0$
+
+ $\mu=0.1$, $\omega_E = 1.05$, $\varepsilon=1.5$
+\end{frame}
+
+
+\begin{frame}[fragile]
+ integrate functions
+\end{frame}
+
+\begin{frame}[fragile]
+ steppers, rk4, rk78
+\end{frame}
+
+\begin{frame}[fragile]
+ controlled steppers
+\end{frame}
+
+\begin{frame}[fragile]
+ dense output stepper
+\end{frame}
+
+
+
