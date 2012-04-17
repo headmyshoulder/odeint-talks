@@ -129,14 +129,14 @@ struct pendulum
 $\varphi(0) = 1$, $\dot{\varphi}(0) = 0$
 
 \begin{lstlisting}
-odeint::euler< state_type > euler;
+odeint::rk4< state_type > rk4;
 pendulum p( 0.1 , 1.05 , 1.5 );
 
 state_type x = {{ 1.0 , 0.0 }};
 double t = 0.0;
 
 const double dt = 0.01;
-euler.do_step( p , x , t , dt );
+rk4.do_step( p , x , t , dt );
 t += dt;
 \end{lstlisting}
 
@@ -146,7 +146,7 @@ $x(0) \mapsto x(\Delta t)$
 std::cout << t << " " << x[0] << " " << x[1] << "\n";
 for( size_t i=0 ; i<10 ; ++i )
 {
-  euler.do_step( p , x , t , dt );
+  rk4.do_step( p , x , t , dt );
   t += dt;
   std::cout << t << " " << x[0] << " " << x[1] << "\n";
 }
@@ -167,14 +167,89 @@ $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
  $\mu=0.1$, $\omega_E = 1.05$, $\varepsilon=1.5$
 \end{frame}
 
-
 \begin{frame}[fragile]
- integrate functions
+
+  Steppers
+  \begin{lstlisting}
+odeint::runge_kutta_fehlberg78< state_type > stepper;
+  \end{lstlisting}
+
+  \begin{lstlisting}
+odeint::runge_kutta_dopri5< state_type > stepper;
+  \end{lstlisting}
+
+  but controlled steppers are much better
+
 \end{frame}
 
 \begin{frame}[fragile]
- steppers, rk4, rk78
+ Controlled steppers
+
+ insert graphic
+
+ \begin{lstlisting}
+auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
+odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
+ \end{lstlisting}
+
+ tries to perform the step and updates $x$, $t$, and $dt$
+
+ it works because runge kutta fehlberg has error estimation
+
 \end{frame}
+
+
+\begin{frame}[fragile]
+
+Controlled steppers
+
+\begin{lstlisting}
+auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
+while( t < t_end )
+{
+  odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
+  while( res != odeint::success )
+  {
+    res = stepper.try_step( p , x , t , dt );
+  }
+}
+\end{lstlisting}
+
+Use integrate functions
+
+\begin{lstlisting}
+integrate_adaptive( stepper , x , p , t_start , t_end , dt ); 
+integrate_adaptive( stepper , x , p , t_start , t_end , dt , observer );
+\end{lstlisting}
+
+\begin{lstlisting}
+integrate_adaptive( stepper , p , x , t_start , t_end , dt ,
+  std::cout << arg2 << "\t" << arg1[0] << "\t" << arg1[1] << "\n" );
+\end{lstlisting}
+
+integrate\_const, integrate\_times, \dots
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+
+\begin{lstlisting}
+integrate_const( stepper , p , x , t , dt , observer );
+\end{lstlisting}
+
+problem with controlled stepper
+
+\begin{lstlisting}
+integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) , p , x , t , dt );
+\end{lstlisting}
+
+
+\end{frame}
+
+
+
 
 \begin{frame}[fragile]
  controlled steppers
@@ -182,6 +257,10 @@ $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
 \begin{frame}[fragile]
  dense output stepper
+\end{frame}
+
+\begin{frame}[fragile]
+ integrate functions
 \end{frame}
 
 
