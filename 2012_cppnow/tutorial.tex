@@ -93,7 +93,7 @@
 \begin{frame}[fragile]
 
 \centerline{ \Large Let's solve the pendulum example numerically}
-$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+
 
 \begin{lstlisting}
 #include <boost/numeric/odeint.hpp>
@@ -101,10 +101,18 @@ $\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \o
 namespace odeint = boost::numeric::odeint;
 \end{lstlisting}
 
+$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
 \begin{lstlisting}
-typedef std::array< double , 2 > state_type;
+typedef std::array<double,2> state_type;
 \end{lstlisting}
 
+\end{frame}
+
+\begin{frame}[fragile]
+
+\centerline{ \Large Let's solve the pendulum example numerically}
+
+$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
 \begin{lstlisting}
 struct pendulum
 {
@@ -182,6 +190,7 @@ odeint::runge_kutta_dopri5< state_type > stepper;
 
 \end{frame}
 
+
 \begin{frame}[fragile]
  Controlled steppers
 
@@ -251,17 +260,165 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
 
 
 
-\begin{frame}[fragile]
- controlled steppers
+\begin{frame}
+ More steppers
+
+ implicit, symplectic, predictor-corrector, multistep-methods
+
+ maybe small table
 \end{frame}
 
-\begin{frame}[fragile]
- dense output stepper
+
+
+
+\begin{frame}
+ small summary (kann vielleicht auch wieder weg)
+ \begin{itemize}
+  \item Very easy example -- harmonic oscillator
+  \item Basic features of odeint
+  \item Different stepper
+  \item Controlled steppers
+  \item Dense output steppers
+  \item integrate functions
+ \end{itemize}
+
+ Now, advanced features
+
 \end{frame}
 
-\begin{frame}[fragile]
- integrate functions
+
+
+\begin{frame}
+ \slideheading{extended systems}
+
+ \begin{itemize}
+  \item<1->Lattice systems
+  \item<2->Discretizations of PDEs
+  \item<3->ODEs on Graphs
+  \item<4->granular systems
+ \end{itemize}
+
+ High-Performance-Computing
+
+ zu jedem Punkt ein Bildchen
+ 
 \end{frame}
+
+
+
+\begin{frame}
+ \slideheading{Phase oscillator lattices} 
+
+ Any oscillator can be described by one variable, its phase.
+
+ (Bild aus phd Talk)
+
+ Trivial dynamics: $\dot{\varphi}=\omega \varphi$
+
+\end{frame}
+
+
+
+
+\begin{frame}
+ \slideheading{Phase oscillator lattices} 
+
+ Coupled phase oscillators
+
+ Neurosciences
+
+ Heart dynamics
+
+ Synchronization
+
+ Any weakly perturbed oscillator system
+
+ $\dot{\varphi}_k = \omega_k \varphi_k + q( \varphi_{k+1} , \varphi_k ) + q( \varphi_k , \varphi_{k-1} )$
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+ 
+ Phase compacton lattices
+
+ $\dot{\varphi}_k = \cos \varphi_{k+1} - \cos \varphi_{k-1}$
+
+ state space contains $N$ variables
+
+ \begin{lstlisting}
+typedef std::vector<double> state_type;
+ \end{lstlisting}
+
+ Animation with compactons and chaos
+
+ space-time plot for visualization of compactons and chaos
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+
+Dissipative phase lattice
+
+$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$
+
+Synchronization
+
+Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}
+ More advanced features, die themen können auch auf mehreren folien zusammengefasst werden
+\end{frame}
+
+
+\begin{frame}
+ Boost::ref
+\end{frame}
+
+\begin{frame}
+ boost::range
+\end{frame}
+
+\begin{frame}
+ complex state types, vielleicht auch nicht
+\end{frame}
+
+\begin{frame}
+ arbitrary precision types
+\end{frame}
+
+\begin{frame}
+ matrices as state types
+\end{frame}
+
+\begin{frame}
+ graph as state types
+\end{frame}
+
+\begin{frame}
+ self expanding lattices
+\end{frame}
+
+
+
+
+
 
 
 

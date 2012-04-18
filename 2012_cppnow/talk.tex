@@ -22,6 +22,8 @@
 \newcommand{\mathbi}[1]{\textbf{\em #1}}
 \newcommand{\rem}[1]{}
 
+\newcommand{\slideheading}[1]{\centerline{\Large #1}}
+
 
 % Layout specification
 
@@ -121,26 +123,26 @@
 
 
 \lstset{
-         basicstyle=\tiny\ttfamily, % Standardschrift
+         basicstyle=\small\ttfamily, % Standardschrift
          %numbers=left,               % Ort der Zeilennummern
          numberstyle=\tiny,          % Stil der Zeilennummern
          %stepnumber=2,               % Abstand zwischen den Zeilennummern
-         numbersep=5pt,              % Abstand der Nummern zum Text
+         numbersep=0pt,              % Abstand der Nummern zum Text
          tabsize=2,                  % Groesse von Tabs
          extendedchars=true,         %
          breaklines=true,            % Zeilen werden Umgebrochen
          frame=single,         
          backgroundcolor=\color{lighter-gray},
-         tabsize=4,
+         tabsize=2,
          keywordstyle=\color{dark-green},
          identifierstyle=,
          commentstyle=\color{dark-gray}\normalfont\rmfamily\itshape,
          stringstyle=\color{dark-red},
          showspaces=false,           % Leerzeichen anzeigen ?
          showtabs=false,             % Tabs anzeigen ?
-         xleftmargin=17pt,
+         xleftmargin=10pt,
          xrightmargin=10pt,
-         framexleftmargin=17pt,
+         framexleftmargin=5pt,
          framexrightmargin=5pt,
          framexbottommargin=4pt,
          language=c++,
