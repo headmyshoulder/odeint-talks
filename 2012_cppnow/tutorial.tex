@@ -306,7 +306,7 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
 
 
 
-\begin{frame}
+\begin{frame}[fragile]
  \slideheading{Phase oscillator lattices} 
 
  Any oscillator can be described by one variable, its phase.
@@ -314,6 +314,8 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
  (Bild aus phd Talk)
 
  Trivial dynamics: $\dot{\varphi}=\omega \varphi$
+
+Vielleicht zusammenfuehren mit der naechsten Folie
 
 \end{frame}
 
@@ -364,15 +366,149 @@ typedef std::vector<double> state_type;
 
 \begin{frame}[fragile]
 
-Dissipative phase lattice
+Ensemble of phase oscillators
 
 $\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$
 
-Synchronization
+Synchronization, all oscillator oscillates with the same frequency
 
 Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
 \end{frame}
+
+
+
+\begin{frame}[fragile]
+
+Classical implementation
+
+\begin{lstlisting}
+typedef std::vector<double> state_type;
+
+struct phase_ensemble
+{
+    state_type m_omega;
+    double m_epsilon;
+
+    phase_ensemble(size_t n,double g=1.0,double epsilon=1.0)
+    : m_omega(n,0.0),m_epsilon(epsilon)
+    {
+        create_frequencies(g);
+    }
+
+    void create_frequencies(double g) { ... }
+
+    void operator()(const state_type &x,state_type &dxdt,double t) const
+    {
+         ...
+    }
+};
+\end{lstlisting}
+
+The ODE has now many parameters, use boost::ref
+
+Vielleicht koennen diese beiden Folien weg
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+
+\slideheading{Solving ODEs with CUDA using thrust}
+
+What is Thrust
+\begin{quotation}
+Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL). Thrust's high-level interface greatly enhances developer productivity while enabling performance portability between GPUs and multicore CPUs. Interoperability with established technologies (such as CUDA, TBB and OpenMP) facilitates integration with existing software. Develop high-performance applications rapidly with Thrust!
+\end{quotation}
+
+
+\includegraphics[draft=false,width=0.3\textwidth]{thrust_logo.png}
+ 
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ 
+\slideheading{Solving ODEs with CUDA using thrust}
+
+Where to use it
+\begin{itemize}
+ \item Large systems, discretizations of ODE, lattice systems, granular systems, etc.
+ \item Parameter studies, integrate many ODEs in parallel with different parameters
+ \item Initial value studies, integrate the same ODE with many different initial conditions in parallel
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \slideheading{Lorenz system -- Parameter study}
+
+ \begin{equation}
+  \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
+ \end{equation}
+
+Standard parameters $\sigma=10$, $R=28$, $b=8/3$ deterministic chaos, butterfly effect
+
+picture of Lorenz system
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \slideheading{Lorenz system -- Parameter study}
+
+Vary $R$ from $0$ to $50$, for which parameters the system is chaotic?
+
+Lyapunov exponents, perturbations of the original system
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+
+Algebras and operations
+
+Euler method
+
+$ x_i(t+\Delta t) = x_i(t) + \Delta t * f_i(x)$
+
+Algebras perform the iteration over $i$ and operation the elementary addition.
+
+Algebras and operations enter the stepper as template parameters
+
+\begin{lstlisting}
+typedef runge_kutta4<state_type,value_type,deriv_type,time_type,
+    algebra,operations,resize_policy> stepper; 
+\end{lstlisting}
+
+\begin{itemize}
+ \item {\tt default\_operations}
+ \item {\tt range\_algebra} -- Boost.Ranges
+ \item {\tt vector\_space\_algebra} -- Passes the state directly to the operations
+ \item {\tt fusion\_algebra} -- For compile time sequences, like $std::tuple< double , double >$
+ \item {\tt thrust\_algebra} and {\tt thrust\_algebra} -- for thrust
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+Thrust example for Lorenz system,
+
+Implementation of the system function 
+
+\end{frame}
+
+
 
 
 
