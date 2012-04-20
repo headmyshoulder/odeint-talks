@@ -1,120 +1,93 @@
 \section{Introduction}
 
 
+\rem{
 \begin{frame}
- \slideheading{What is odeint?}
+ 
+ \only<1>{
 
- ODE -- ordinary differential equation
+   \heading{{\color{red}\bf ode}int}
 
- int -- Integration
+   \vspace{6ex}
 
- A C++ library for solving ordinary differential equations
+   \Large
 
- {\tt odeint.com}
+   ode \hspace{4ex} ordinary differential equation
+
+   \vspace{5ex}
+
+}
+
+ \only<2>{
+   \heading{ode{\color{red}\bf int}}
+
+   \vspace{6ex}
+
+   \Large
+
+   ode \hspace{4ex} ordinary differential equation
+
+   \vspace{3ex}
+
+   int \hspace{4ex} integration
+}
 
 \end{frame}
+}
 
 \begin{frame}
  
- \slideheading{What is an ODE?}
-
- Vielleicht Marios Folie(n) kopieren
-
-\end{frame}
+\heading{What is an ODE?}
 
 
-\begin{frame}[fragile]
+\vspace{4ex}
+
+Examples
+
+\begin{itemize}
+ \item Newtons equations (Bild Sonnensystem)
+ \item Reaction and relaxation equations (Alkoholabbau im Blut)
+ \item Granular systems (Bild)
+ \item Interacting neurons (Bild)
+\end{itemize}
+
+Fundamental in mathematical modelling
  
- \slideheading{Who uses odeint}
-
-netevo
-
-ompl (Open Motion planning library)
-
-\dots
 
 \end{frame}
 
 
+\begin{frame}
+ 
+ \heading{What is an ODE?}
+
+ $$\frac{\de x(t)}{\de t} = f\big(x(t) , t\big) \qquad \qquad {\scriptsize \text{short form} \qquad \dot{x} = f(x,t)}
+$$
+
+achtung die gleichung hinter auch klein machen
+
+ \begin{itemize}
+  \item $x$ -- dependent variable, function under consideration
+  \item $t$ -- indenpendent variable (time)
+  \item $f(x,t)$ -- defines the ODE
+ \end{itemize}
+
+\vspace{4ex}
+
+ Initial Value Problem (IVP):
+ 
+ $$\dot x = f( x , t ) ,\qquad x(t=0) = x_0$$
 
 
 
-\frame{
-  \frametitle{The interface problem in C/C++}
+\end{frame}
+
+
+\begin{frame}
   
-    \begin{itemize}
-      \item Many frameworks exist to do numerical computations.
-      \item Data has to be stored in containers or collections.
-      \item GSL: {\tt gsl\_vector}, {\tt gsl\_matrix}
-      \item NR: pointers with Fortran-style indexing
-      \item Blitz++, MTL4, boost::ublas
-      \item QT: {\tt QVector}, wxWidgets: {\tt wxArray}, MFC: {\tt CArray}
-    \end{itemize}
-
-  %\vspace{2ex}
-
-    {\bf \color{red} But:} All books on C++ recommend the use of the STL containers {\tt std::vector},
-    {\tt std::list}, \dots
-
- \pause
-
-  %\vspace{2ex}
-
-  \begin{block}{Theoretical solution of the interface mess}
-  GoF Design Pattern: Adaptor, also known as Wrapper
-
-  % {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
-  \end{block}
-
-  \pause
-
-  \begin{exampleblock}{Alternative}
-   Generic, container independent algorithms
-  \end{exampleblock}
-
-}
-
-\frame{
-  \frametitle{Example}
-  \includegraphics[draft=false,width=0.84\textwidth]{gsl_mess.jpg}
-}
-
-\frame{
-  \frametitle{Portability of your algorithm}
-
-  How to run your algorithm?
-    \begin{itemize}
-      \item Single machine, single CPU
-      \item Single machine, multiple CPU's (OpenMP, threads, ...)
-      \item Multiple machines (MPI)
-      \item GPU (Cuda, Thrust, OpenCL)
-    \end{itemize}
-
-  \pause
-
-  \vspace{2ex}
-
-  Which data types are used by your algorithm?
-   \begin{itemize}
-    \item Build-in data types -- \texttt{double}, \texttt{complex<double>}
-    \item Arbitrary precision types -- GMP, MPFR
-    \item Vectorial data types \texttt{float2d}, \texttt{float3d}
-   \end{itemize}
-
-  \pause
-
-  \vspace{2ex}
-
-  \begin{block}{Theoretical solution}
-    GoF Design Pattern: Strategy, also known as Policy
-    
-    {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
-  \end{block}
-}
-
-\frame{
-  \frametitle{Numerical integration of ODEs}
+ \heading{Numerical integration of ODEs}
   
+\vspace{4ex}
     Find a numerical solution of an ODE an its initial value problem 
     \[ \dot{x} = f(x,t) \,\,\textrm{,} \quad \quad x(t=0) = x_0\]
 
@@ -129,7 +102,7 @@ ompl (Open Motion planning library)
     \[ x(t) \,\, \mapsto \,\, x(t+\Delta t) \quad \quad \text{, or}\]
     \[x(t + \Delta t) = \mathcal{F}_t x(t) + \mathcal{O}(\Delta t^{s+1})\]
 
-}
+\end{frame}
 
 
 
@@ -137,7 +110,7 @@ ompl (Open Motion planning library)
 \frame{
 %  \frametitle{odeint - Solving ODEs in C++}
 
-\centerline{\Large \bf \color{red}odeint}
+\heading{\bf \color{red}odeint}
 
 \vspace{2ex}
 
@@ -174,5 +147,105 @@ Modern C++
 \end{itemize}
 
 }
+
+
+
+
+
+\begin{frame}[fragile]
+ 
+ \slideheading{Who uses odeint}
+
+\vspace{4ex}
+
+Used as backend to solve ODEs in 
+
+\vspace{4ex}
+
+netevo (logo einfuegen)
+
+ompl (Open Motion planning library) (logo einfuegen)
+
+\dots
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+  \heading{Motivation: The interface problem in C/C++}
+  
+    \begin{itemize}
+      \item Many frameworks exist to do numerical computations.
+      \item Data has to be stored in containers or collections.
+      \item GSL: {\tt gsl\_vector}, {\tt gsl\_matrix}
+      \item NR: pointers with Fortran-style indexing
+      \item Blitz++, MTL4, boost::ublas
+      \item QT: {\tt QVector}, wxWidgets: {\tt wxArray}, MFC: {\tt CArray}
+    \end{itemize}
+
+  %\vspace{2ex}
+
+    {\bf \color{red} But:} All books on C++ recommend the use of the STL containers {\tt std::vector},
+    {\tt std::list}, \dots
+
+ \pause
+
+  %\vspace{2ex}
+
+  \begin{block}{Theoretical solution of the interface mess}
+  GoF Design Pattern: Adaptor, also known as Wrapper
+
+  % {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
+  \end{block}
+
+  \pause
+
+  \begin{exampleblock}{Alternative}
+   Generic, container independent algorithms
+  \end{exampleblock}
+
+\end{frame}
+
+\frame{
+  \frametitle{Example}
+  \includegraphics[draft=false,width=0.84\textwidth]{gsl_mess.jpg}
+}
+
+\begin{frame}
+  
+  \heading{Portability of your algorithm}
+
+  How to run your algorithm?
+    \begin{itemize}
+      \item Single machine, single CPU
+      \item Single machine, multiple CPU's (OpenMP, threads, ...)
+      \item Multiple machines (MPI)
+      \item GPU (Cuda, Thrust, OpenCL)
+    \end{itemize}
+
+  \pause
+
+  \vspace{2ex}
+
+  Which data types are used by your algorithm?
+   \begin{itemize}
+    \item Build-in data types -- \texttt{double}, \texttt{complex<double>}
+    \item Arbitrary precision types -- GMP, MPFR
+    \item Vectorial data types \texttt{float2d}, \texttt{float3d}
+   \end{itemize}
+
+  \pause
+
+  \vspace{2ex}
+
+  \begin{block}{Theoretical solution}
+    GoF Design Pattern: Strategy, also known as Policy
+    
+    {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
+  \end{block}
+\end{frame}
 
 
