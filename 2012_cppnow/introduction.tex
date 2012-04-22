@@ -35,39 +35,63 @@
 \end{frame}
 }
 
+
 \begin{frame}
  
-\heading{What is an ODE?}
+\heading{What is an ODE? -- Examples}
 
+\vspace{2ex}
 
-\vspace{4ex}
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Newtons equations
 
-Examples
+  \includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
+ \end{center}
+\end{minipage}
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Reaction and relaxation equations (i.e. blood alcohol content)
+ \end{center}
+\end{minipage}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Granular systems
+
+  \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
+ \end{center}
+\end{minipage}
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Interacting neurons
+
+  \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
+ \end{center}
+\end{minipage}
+
+\vspace{2ex}
 
 \begin{itemize}
- \item Newtons equations (Bild Sonnensystem)
- \item Reaction and relaxation equations (Alkoholabbau im Blut)
- \item Granular systems (Bild)
- \item Interacting neurons (Bild)
+ \item Many examples in physics, biology, chemistry, social sciences
+ \item Fundamental in mathematical modelling
 \end{itemize}
 
-Fundamental in mathematical modelling
- 
-
 \end{frame}
+
 
 
 \begin{frame}
  
  \heading{What is an ODE?}
 
- $$\frac{\de x(t)}{\de t} = f\big(x(t) , t\big) \qquad \qquad {\scriptsize \text{short form} \qquad \dot{x} = f(x,t)}
+ $$\frac{\de x(t)}{\de t} = f\big(x(t) , t\big) \qquad \qquad {\scriptsize \text{short form}} \qquad \dot{x} = f(x,t)
 $$
 
-achtung die gleichung hinter auch klein machen
-
  \begin{itemize}
-  \item $x$ -- dependent variable, function under consideration
+  \item $x(t)$ -- dependent variable
   \item $t$ -- indenpendent variable (time)
   \item $f(x,t)$ -- defines the ODE
  \end{itemize}
@@ -75,10 +99,10 @@ achtung die gleichung hinter auch klein machen
 \vspace{4ex}
 
  Initial Value Problem (IVP):
- 
+
  $$\dot x = f( x , t ) ,\qquad x(t=0) = x_0$$
 
-
+ \centerline{Find $x(t)$}
 
 \end{frame}
 
@@ -140,7 +164,6 @@ Download
 Modern C++
 \begin{itemize}
  \item Generic programming, functional programming 
- \item Heavy use of the C++ template system
  \item Fast, easy-to-use and extendable.
  \item Container independent
  \item Portable
@@ -154,19 +177,27 @@ Modern C++
 
 \begin{frame}[fragile]
  
- \slideheading{Who uses odeint}
+ \heading{Who uses odeint}
 
 \vspace{4ex}
 
-Used as backend to solve ODEs in 
 
-\vspace{4ex}
 
-netevo (logo einfuegen)
+\begin{minipage}{0.2\textwidth}
+ \begin{center}
+  NetEvo
 
-ompl (Open Motion planning library) (logo einfuegen)
+  \vspace{1ex}
+  
+  \includegraphics[draft=false,width=1.0\textwidth]{netevo.png}
+ \end{center}
+\end{minipage}
+\hspace{4ex}\begin{minipage}{0.4\textwidth}
+ \begin{center}
+  OMPL -- Open Motion Planning Library
+ \end{center}
+\end{minipage}
 
-\dots
 
 \end{frame}
 
@@ -176,6 +207,8 @@ ompl (Open Motion planning library) (logo einfuegen)
 
 \begin{frame}
   \heading{Motivation: The interface problem in C/C++}
+
+  \vspace{2ex}
   
     \begin{itemize}
       \item Many frameworks exist to do numerical computations.
@@ -197,8 +230,6 @@ ompl (Open Motion planning library) (logo einfuegen)
 
   \begin{block}{Theoretical solution of the interface mess}
   GoF Design Pattern: Adaptor, also known as Wrapper
-
-  % {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
   \end{block}
 
   \pause
@@ -209,14 +240,13 @@ ompl (Open Motion planning library) (logo einfuegen)
 
 \end{frame}
 
-\frame{
-  \frametitle{Example}
-  \includegraphics[draft=false,width=0.84\textwidth]{gsl_mess.jpg}
-}
+
 
 \begin{frame}
   
   \heading{Portability of your algorithm}
+
+  \vspace{1ex}
 
   How to run your algorithm?
     \begin{itemize}
@@ -228,7 +258,7 @@ ompl (Open Motion planning library) (logo einfuegen)
 
   \pause
 
-  \vspace{2ex}
+  \vspace{1ex}
 
   Which data types are used by your algorithm?
    \begin{itemize}
@@ -239,13 +269,16 @@ ompl (Open Motion planning library) (logo einfuegen)
 
   \pause
 
-  \vspace{2ex}
+  \vspace{1ex}
 
   \begin{block}{Theoretical solution}
     GoF Design Pattern: Strategy, also known as Policy
-    
-    {\tiny Gamma, Holm, Johnson, Vlissides: {\it Design Patterns, Elements of Reuseable Object-Oriented Software},  1998.}
   \end{block}
+
+  \begin{exampleblock}{Alternative}
+   Generic algorithms
+  \end{exampleblock}
+
 \end{frame}
 
 
