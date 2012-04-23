@@ -241,64 +241,118 @@ $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
   \vspace{2ex}
 
   \begin{lstlisting}
-runge_kutta_fehlberg78< state_type > stepper;
+runge_kutta_fehlberg78< state_type > s;
   \end{lstlisting}
 
   \begin{lstlisting}
-runge_kutta_dopri5< state_type > stepper;
+runge_kutta_dopri5< state_type > s;
   \end{lstlisting}
 
-  but controlled steppers are much better
+  \vspace{2ex}
+  Symplectic steppers (for Hamiltonian systems)
+  \begin{lstlisting}
+symplectic_rkn_sb3a_mclachlan< state_type > s;
+  \end{lstlisting}
+
+  \vspace{2ex}
+  Implicit steppers (for stiff systems)
+  \begin{lstlisting}
+rosenbrock4< double > s;
+  \end{lstlisting}
+
+  \vspace{2ex}
+  {\bf These steppers perform one step with constant step size!}
 
 \end{frame}
 
-
-\begin{frame}[fragile]
- Controlled steppers
+\begin{frame}
+ \heading{Controlled steppers -- Step size control}
 
  insert graphic
 
+ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ 
+ \heading{Controlled steppers}
+ 
+ \vspace{2ex}
+
  \begin{lstlisting}
-auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
-odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
+auto s = make_controlled(1.0e-6,1.0e6,
+  runge_kutta_fehlberg78<state_type>() );
+controlled_step_result r = 
+  s.try_step(ode,x,t,dt);
  \end{lstlisting}
 
- tries to perform the step and updates $x$, $t$, and $dt$
+ Tries to perform the step and updates $x$, $t$, and $dt$!
 
- it works because runge kutta fehlberg has error estimation
+ \vspace{4ex}
+
+ It works because Runge-Kutta-Fehlberg has error estimation:
+
+ \begin{lstlisting}
+runge_kutta_fehlberg78<state_type> s;
+s.do_step(ode,x,t,dt,xerr);
+ \end{lstlisting}
+
 
 \end{frame}
 
 
 \begin{frame}[fragile]
 
-Controlled steppers
+\heading{Controlled steppers}
+
+\vspace{2ex}
 
 \begin{lstlisting}
-auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
+auto s = make_controlled(1.0e-6,1.0e6,
+  runge_kutta_fehlberg78<state_type>() );
 while( t < t_end )
 {
-  odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
-  while( res != odeint::success )
+  controlled_step_result res
+    = s.try_step(ode,x,t,dt);
+  while( res != success )
   {
-    res = stepper.try_step( p , x , t , dt );
+    res = s.try_step(ode,x,t,dt);
   }
 }
 \end{lstlisting}
 
-Use integrate functions
+\centerline{Non-trivial time-stepping logic}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+  \heading{Use integrate functions!}
+
+\vspace{2ex}
+
 
 \begin{lstlisting}
-integrate_adaptive( stepper , x , p , t_start , t_end , dt ); 
-integrate_adaptive( stepper , x , p , t_start , t_end , dt , observer );
+integrate_adaptive(s,ode,x,t_start,t_end,dt); 
+integrate_adaptive(s,ode,x,t_start,t_end,dt,observer);
 \end{lstlisting}
 
+Observer: Callable object {\tt obs(x,t)}
+
+\vspace{4ex}
+Example (using Boost.Phoenix):
 \begin{lstlisting}
-integrate_adaptive( stepper , p , x , t_start , t_end , dt ,
-  std::cout << arg2 << "\t" << arg1[0] << "\t" << arg1[1] << "\n" );
+integrate_adaptive(s,ode,x,t_start,t_end,dt,
+  cout<< arg1[0] << " " <<arg1[1] << "\n" );
 \end{lstlisting}
 
-integrate\_const, integrate\_times, \dots
+\vspace{2ex}
+More integrate version:
+
+{\tt integrate\_const}, {\tt integrate\_times}, \dots
 
 \end{frame}
 
@@ -307,17 +361,23 @@ integrate\_const, integrate\_times, \dots
 \begin{frame}[fragile]
 
 \begin{lstlisting}
-integrate_const( stepper , p , x , t , dt , observer );
+integrate_const(s,ode,x,t,dt,obs);
 \end{lstlisting}
 
-problem with controlled stepper
+Grafik with problem and solution
 
+\end{frame}
+
+\begin{frame}[fragile]
+ 
 \begin{lstlisting}
 integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) , p , x , t , dt );
 \end{lstlisting}
 
-
 \end{frame}
+
+
+
 
 
 
