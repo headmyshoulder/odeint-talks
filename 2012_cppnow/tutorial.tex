@@ -12,99 +12,129 @@
 
 \vspace{2ex}
 
-\begin{minipage}{0.35\textwidth}
+\begin{columns}[T]
+  \begin{column}{0.35\textwidth}
     \includegraphics[draft=false,width=1.0\textwidth]{pendulum.pdf}
-\end{minipage}
-\hspace{2ex}
-\begin{minipage}{0.5\textwidth}
+
+   \vspace{4ex}
+  \end{column}
+
+  \begin{column}{0.65\textwidth}
  \only<1>{
- Pendulum -- Newtons law
+ Newtons law: $m a = F$
 
- 
- $m a = F$
+ \vspace{2ex}
 
- Acceleration
+ Acceleration:  $a = l \ddot{\varphi}$
 
- $a = l \ddot{\varphi}$
+ \vspace{2ex}
 
- Force
+ Force: $F=F_N = - m g \sin \varphi$
 
- $F=F_N = - m g \sin \varphi$
+ \vspace{4ex}
 
- Result in an ode for the angle
+ $\Longrightarrow$ {\bf ODE for $\varphi$}
 
- $\ddot{\varphi} = - g / l \sin \varphi $
+ $$\ddot{\varphi} = - g / l \sin \varphi = -\omega_0^2 \sin \varphi$$
  }
 
  \only<2>
  {
 
- $\ddot{\varphi} = - g / l \sin \varphi $
+ $$\ddot{\varphi} = - \omega_0^2 \sin \varphi $$
 
- Small angle $\sin \varphi \approx \phi$
+ Small angle: $\sin \varphi \approx \varphi$
 
- Harmonic oscillator
+ \vspace{2ex}
 
- $\ddot{\varphi} = - g / l \varphi$
+ Harmonic oscillator $\ddot{\varphi} = - \omega_0^2 \varphi$
 
- An analytic solution is known
+ \vspace{2ex}
 
- $\varphi = A \cos \omega t + B \sin \omega t$
+ Analytic solution: $\varphi = A \cos \omega_0 t + B \sin \omega_0 t$
 
- Amplitude $A$ and $B$ must be determined from initial conditions:
+ \vspace{2ex}
 
- $\varphi(t=0) = \varphi_0$, $\dot{\varphi}(t=0) = \dot{\varphi}_0$
+ Determine $A$ and $B$ from initial condition\rem{:
 
- $B=\varphi_0$, $A=\dot{\varphi}_0 / \omega$
+ \centerline{$\varphi(t=0) = \varphi_0 \,\, \text{,} \quad \dot{\varphi}(t=0) = \dot{\varphi}_0$}
+
+ \centerline{$B=\varphi_0 \,\, \text{,} \quad A=\dot{\varphi}_0 / \omega$}}
 
  }
 
  \only<3>{
 
- Full equation $\ddot{\varphi} = g / l \sin \varphi $
+ Full equation: $\ddot{\varphi} = -\omega_0^2 \sin \varphi $
 
- has also analytic solution Jacobi elliptic function
+ \vspace{2ex}
 
- Lets enhance the ODE, add friction and external driving
+ Pendulum with friction and external driving:
 
- $\ddot{\varphi} = g / l \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega t $
+ $$\ddot{\varphi} = -\omega_0^2 \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega_E t $$
 
- No analytic solution is known. We need to solve this equation numerically.
+ \vspace{2ex}
+
+ No analytic solution is known
+
+ \vspace{2ex}
+
+ $\Longrightarrow$ {\bf Solve this equation numerically.}
 
  }
 
  \only<4>{
 
- $\ddot{\varphi} = g / l \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega t $
+ $$\ddot{\varphi} = -\omega_0^2 \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega_E t $$
+
+ \vspace{2ex}
 
  Create a first order ODE
 
- $x_1 = \varphi$, $x_2 = \dot{\varphi}$
+ \vspace{1ex}
 
- $\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+ \centerline{$x_1 = \varphi \,\, \text{,} \quad x_2 = \dot{\varphi}$}
 
- $x_1$ and $x_2$ are the state space variables.
+ \vspace{-3ex}
+ \begin{align*}
+   \dot{x_1} &= x_2 \\
+   \dot{x_2} &= - \omega_0  \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t  
+ \end{align*}
+
+
+ $x_1$ and $x_2$ are the state space variables
 
  }
- 
-\end{minipage}
+   
+  \end{column}
+\end{columns}
 
  
+
 \end{frame}
+
+
+
+
+
 
 
 \begin{frame}[fragile]
 
 \centerline{ \Large Let's solve the pendulum example numerically}
 
-
+\vspace{2ex}
 \begin{lstlisting}
 #include <boost/numeric/odeint.hpp>
 
 namespace odeint = boost::numeric::odeint;
 \end{lstlisting}
 
-$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+\vspace{2ex}
+
+\centerline{$\dot{x_1} = x_2 \,\,\text{,} \quad \dot{x_2} = - \omega_0 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$}
+
+\vspace{2ex}
 \begin{lstlisting}
 typedef std::array<double,2> state_type;
 \end{lstlisting}
@@ -115,19 +145,25 @@ typedef std::array<double,2> state_type;
 
 \centerline{ \Large Let's solve the pendulum example numerically}
 
+\vspace{2ex}
+
 $\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+
+\vspace{2ex}
+
 \begin{lstlisting}
 struct pendulum
 {
-  double m_mu , m_omega , m_epsilon;
+  double m_mu, m_omega, m_eps;
 
-  pendulum( double mu , double omega , double epsilon )
-  : m_mu( mu ) , m_omega( omega ) , m_epsilon( epsilon ) { }
+  pendulum(double mu,double omega,double eps)
+  : m_mu(mu),m_omega(omega),m_eps(eps) { }
 
-  void operator()( const state_type &x , state_type &dxdt , double t ) const
+  void operator()(const state_type &x,state_type &dxdt,double t) const
   {
     dxdt[0] = x[1];
-    dxdt[1] = - sin( x[0] ) - m_mu * x[1] + m_epsilon * sin( m_omega * t );
+    dxdt[1] = -sin(x[0]) - m_mu * x[1] +
+        m_eps * sin(m_omega*t);
   }
 };
 \end{lstlisting}
@@ -137,7 +173,9 @@ struct pendulum
 \begin{frame}[fragile]
  \centerline{ \Large Let's solve the pendulum example numerically}
 
-$\varphi(0) = 1$, $\dot{\varphi}(0) = 0$
+\vspace{2ex}
+$\varphi(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = 0$
+\vspace{2ex}
 
 \begin{lstlisting}
 odeint::rk4< state_type > rk4;
@@ -151,17 +189,29 @@ rk4.do_step( p , x , t , dt );
 t += dt;
 \end{lstlisting}
 
+\vspace{2ex}
+
 $x(0) \mapsto x(\Delta t)$
 
+\end{frame}
+
+\begin{frame}[fragile]
+ \centerline{ \Large Let's solve the pendulum example numerically}
+
+\vspace{2ex}
+
+
 \begin{lstlisting}
-std::cout << t << " " << x[0] << " " << x[1] << "\n";
+std::cout<<t<<" "<< x[0]<<" "<<x[1]<<"\n";
 for( size_t i=0 ; i<10 ; ++i )
 {
   rk4.do_step( p , x , t , dt );
   t += dt;
-  std::cout << t << " " << x[0] << " " << x[1] << "\n";
+  std::cout<<t<<" "<< x[0]<<" "<<x[1]<<"\n";
 }
 \end{lstlisting}
+
+\vspace{2ex}
 
 $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
@@ -169,24 +219,33 @@ $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
 
 \begin{frame}[fragile]
- Simulation
+ \heading{Simulation}
 
- $\mu=0$, $\omega_E = 0$, $\varepsilon=0$
+ \vspace{4ex}
 
- $\mu=0.1$, $\omega_E = 0$, $\varepsilon=0$
+ \centerline{Oscillator: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
- $\mu=0.1$, $\omega_E = 1.05$, $\varepsilon=1.5$
+ \vspace{2ex}
+ 
+\centerline{Damped oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+
+ \vspace{2ex}
+
+ \centerline{Damped, driven oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
 \end{frame}
 
 \begin{frame}[fragile]
 
-  Steppers
+  \heading{Different Steppers}
+
+  \vspace{2ex}
+
   \begin{lstlisting}
-odeint::runge_kutta_fehlberg78< state_type > stepper;
+runge_kutta_fehlberg78< state_type > stepper;
   \end{lstlisting}
 
   \begin{lstlisting}
-odeint::runge_kutta_dopri5< state_type > stepper;
+runge_kutta_dopri5< state_type > stepper;
   \end{lstlisting}
 
   but controlled steppers are much better
@@ -292,7 +351,7 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
 
 
 \begin{frame}
- \slideheading{extended systems}
+ \heading{extended systems}
 
  \begin{itemize}
   \item<1->Lattice systems
@@ -310,7 +369,7 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
 
 
 \begin{frame}[fragile]
- \slideheading{Phase oscillator lattices} 
+ \heading{Phase oscillator lattices} 
 
  Any oscillator can be described by one variable, its phase.
 
@@ -326,7 +385,7 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
 
 \begin{frame}
- \slideheading{Phase oscillator lattices} 
+ \heading{Phase oscillator lattices} 
 
  Coupled phase oscillators
 
@@ -418,7 +477,7 @@ Vielleicht koennen diese beiden Folien weg
 
 \begin{frame}[fragile]
 
-\slideheading{Solving ODEs with CUDA using thrust}
+\heading{Solving ODEs with CUDA using thrust}
 
 What is Thrust
 \begin{quotation}
@@ -434,7 +493,7 @@ Thrust is a parallel algorithms library which resembles the C++ Standard Templat
 
 \begin{frame}[fragile]
  
-\slideheading{Solving ODEs with CUDA using thrust}
+\heading{Solving ODEs with CUDA using thrust}
 
 Where to use it
 \begin{itemize}
@@ -449,7 +508,7 @@ Where to use it
 
 
 \begin{frame}[fragile]
- \slideheading{Lorenz system -- Parameter study}
+ \heading{Lorenz system -- Parameter study}
 
  \begin{equation}
   \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
@@ -463,7 +522,7 @@ picture of Lorenz system
 
 
 \begin{frame}[fragile]
-  \slideheading{Lorenz system -- Parameter study}
+  \heading{Lorenz system -- Parameter study}
 
 Vary $R$ from $0$ to $50$, for which parameters the system is chaotic?
 
