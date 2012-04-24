@@ -4,3 +4,71 @@
 \begin{frame}
   \tableofcontents[currentsection] 
 \end{frame}
+
+\subsection{Independent Algorithms}
+
+\begin{frame}{Independent Algorithms}
+\note{To achive maximum flexibility we wanted to implement the numerical algorithms independent from state type and computation details}
+
+\begin{block}{Goal}
+ Container- and computation-independent implementation of the numerical algorithms.  
+\end{block}
+
+\begin{block}{Benefit}
+ High flexibility and applicability, \odeint\ can be used for virtually any formulation of an ODE.
+\end{block}
+ 
+\begin{block}{Approach}
+ Detatch the algorithm from memory management and computation detail and make each part interchangeable.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Required Computations}
+ Typical mathematical computation to calculate the solution of an ODE ($\dot{\vec x} = \vec f(\vec x , t)$):
+
+\begin{align*}
+ \vec F_1 &= \vec f( \vec x_0 , t_0 ) \\
+ \vec x' &= \vec x_0 + a_{21} \cdot \Delta t \cdot \vec F_1 \\
+ \vec F_2 &= \vec f( \vec x' , t_0 + c_1\cdot\Delta t ) \\
+ \vec x' &= \vec x_0 + a_{31} \cdot \Delta t \cdot \vec F_1 + a_{32} \cdot \Delta t \cdot \vec F_2 \\
+         &\vdots \\
+ \vec x_1 &= \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s
+\end{align*} 
+
+\end{frame}
+
+\begin{frame}[fragile]{Strucutural Requirements}
+\begin{align*}
+ {\color{red}\vec F_1} &= \vec f( {\color{red}\vec x_0} , {\color{blue}t_0} ) & %\\
+ {\color{red}\vec x'} &= {\color{red}\vec x_0} + {\color{dark-green}a_{21}} \cdot {\color{blue}\Delta t} \cdot {\color{red}\vec F_1}
+\end{align*}
+ 
+Types:
+\begin{itemize}
+ \item {\color{red} vector type}, mostly, but not neccessarily, some container like \lstinline+vector<double>+
+ \item {\color{blue} time type}, usually \lstinline+double+, but might be a multi-precision type
+ \item {\color{dark-green} value type}, most likely the same as time type
+\end{itemize}
+\pause
+\vspace{0.5em}
+
+Function Call:
+\begin{lstlisting}
+void rhs( const vector_type &x , vector_type &dxdt , const time_type t )
+{ /* user defined */ }
+
+rhs( x0 , F1 , t ); //memory allocation for F1?
+\end{lstlisting}
+
+
+\end{frame}
+
+
+
+
+\subsection{Memory Management}
+
+\subsection{Computation Backend}
+
+\subsection{Benefits}
