@@ -147,7 +147,7 @@ typedef std::array<double,2> state_type;
 
 \vspace{2ex}
 
-$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+$\dot{x_1} = x_2$, $\dot{x_2} = - \omega_0^2 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$
 
 \vspace{2ex}
 
@@ -346,11 +346,11 @@ Observer: Callable object {\tt obs(x,t)}
 Example (using Boost.Phoenix):
 \begin{lstlisting}
 integrate_adaptive(s,ode,x,t_start,t_end,dt,
-  cout<< arg1[0] << " " <<arg1[1] << "\n" );
+  cout<< arg1[0] << " " << arg1[1] << "\n" );
 \end{lstlisting}
 
 \vspace{2ex}
-More integrate version:
+More integrate versions:
 
 {\tt integrate\_const}, {\tt integrate\_times}, \dots
 
@@ -368,12 +368,24 @@ Grafik with problem and solution
 
 \end{frame}
 
+
+
 \begin{frame}[fragile]
+
+\heading{Dense output}
+
+\vspace{2ex}
  
 \begin{lstlisting}
-integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) , p , x , t , dt );
+auto s = make_dense_output( 1.0e-6 , 1.0e-6 ,
+    runge_kutta_dopri5< state_type >() );
+integrate_const( s , p , x , t , dt );
 \end{lstlisting}
 
+Interpolation between two steps with same precision as the original stepper!
+
+Grafik!
+
 \end{frame}
 
 
@@ -383,69 +395,105 @@ integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_
 
 
 \begin{frame}
- More steppers
+ \heading{More steppers}
 
- implicit, symplectic, predictor-corrector, multistep-methods
+ \vspace{2ex}
 
- maybe small table
+ {\bf Stepper Concepts}: Stepper, ErrorStepper, ControlledStepper, DenseOutputStepper
+
+ \vspace{2ex}
+
+ {\bf Stepper types}: 
+ \begin{itemize}
+  \item Implicit -- {\tt implicit\_euler}, {\tt rosenbrock4}
+  \item Symplectic -- {\tt symplectic\_rkn\_sb3a\_mclachlan}
+  \item Predictor-Corrector -- {\tt adams\_bashforth\_moulton}
+  \item Extrapolation -- {\tt bulirsch\_stoer}
+  \item Multistep methods -- {\tt adams\_bashforth\_moulton}
+ \end{itemize}
+
+ \vspace{2ex}
+ Some of them have step-size control and dense-output!
+
 \end{frame}
 
 
 
 
 \begin{frame}
- small summary (kann vielleicht auch wieder weg)
+ 
+ \heading{Small summary}
+
+ \vspace{2ex}
  \begin{itemize}
   \item Very easy example -- harmonic oscillator
   \item Basic features of odeint
-  \item Different stepper
-  \item Controlled steppers
-  \item Dense output steppers
-  \item integrate functions
+  \item Different stepper -- Controlled steppers, Dense output steppers
+  \item Integrate functions
  \end{itemize}
 
- Now, advanced features
+ \vspace{2ex}
+
+ \pause
+ \centerline{\bf Now, lets look at the advanced features!}
 
 \end{frame}
 
 
 
 \begin{frame}
- \heading{extended systems}
-
- \begin{itemize}
-  \item<1->Lattice systems
-  \item<2->Discretizations of PDEs
-  \item<3->ODEs on Graphs
-  \item<4->granular systems
- \end{itemize}
-
- High-Performance-Computing
-
- zu jedem Punkt ein Bildchen
  
+\heading{Extended systems}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Lattice systems
+
+  %\includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
+\end{center} \end{minipage}
+\pause
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Discretiztations of PDEs
+\end{center} \end{minipage}
+
+\pause
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}\begin{center}
+  Granular systems
+
+  \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
+ \end{center} \end{minipage}
+\pause
+\begin{minipage}{0.48\textwidth}\begin{center}
+  ODEs on graphs
+
+  \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
+ \end{center}\end{minipage}
+
+ \vspace{2ex}
+ \centerline{\bf High-Performance-Computing}
+
 \end{frame}
 
 
 
 \begin{frame}[fragile]
- \heading{Phase oscillator lattices} 
+ \heading{Phase oscillator lattices}
 
+ \vspace{2ex}
+
+ \begin{columns}[T]
+  \begin{column}{0.35\textwidth}
+   \includegraphics[draft=false,width=1.0\textwidth]{vdp.pdf}  
+  \end{column}
+  \begin{column}{0.63\textwidth}
  Any oscillator can be described by one variable, its phase.
 
- (Bild aus phd Talk)
+ 
 
  Trivial dynamics: $\dot{\varphi}=\omega \varphi$
-
-Vielleicht zusammenfuehren mit der naechsten Folie
-
-\end{frame}
-
-
-
-
-\begin{frame}
- \heading{Phase oscillator lattices} 
 
  Coupled phase oscillators
 
@@ -459,6 +507,10 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
  $\dot{\varphi}_k = \omega_k \varphi_k + q( \varphi_{k+1} , \varphi_k ) + q( \varphi_k , \varphi_{k-1} )$
 
+   
+  \end{column}
+ \end{columns}
+
 \end{frame}
 
 
@@ -466,19 +518,23 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
 \begin{frame}[fragile]
  
- Phase compacton lattices
+ \heading{Phase compacton lattice}
 
- $\dot{\varphi}_k = \cos \varphi_{k+1} - \cos \varphi_{k-1}$
+ \vspace{2ex}
 
- state space contains $N$ variables
+ $$\dot{\varphi}_k = \cos \varphi_{k+1} - \cos \varphi_{k-1}$$
+
+ \vspace{2ex}
+
+ State space contains $N$ variables
 
  \begin{lstlisting}
 typedef std::vector<double> state_type;
  \end{lstlisting}
 
- Animation with compactons and chaos
+ Animation
 
- space-time plot for visualization of compactons and chaos
+ Space-time plot for visualization of compactons and chaos
 
 \end{frame}
 
@@ -488,11 +544,15 @@ typedef std::vector<double> state_type;
 
 \begin{frame}[fragile]
 
-Ensemble of phase oscillators
+ \heading{Ensemble of phase oscillators}
 
-$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$
+ \vspace{2ex}
 
-Synchronization, all oscillator oscillates with the same frequency
+$$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$$
+
+{\bf Synchronization} -- all oscillator oscillates with the same frequency
+
+ \vspace{2ex}
 
 Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
