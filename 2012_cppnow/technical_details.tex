@@ -4,3 +4,190 @@
 \begin{frame}
   \tableofcontents[currentsection] 
 \end{frame}
+
+\begin{frame}
+\heading{Independent Algorithms}
+\note{To achive maximum flexibility we wanted to implement the numerical algorithms independent from state type and computation details}
+
+\begin{block}{Goal}
+ Container- and computation-independent implementation of the numerical algorithms.  
+\end{block}
+
+\begin{block}{Benefit}
+ High flexibility and applicability, \odeint\ can be used for virtually any formulation of an ODE.
+\end{block}
+ 
+\begin{block}{Approach}
+ Detatch the algorithm from memory management and computation detail and make each part interchangeable.
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\heading{Mathematical Algorithm}
+
+ Typical mathematical computation to calculate the solution of an ODE ($\dot{\vec x} = \vec f(\vec x , t)$):
+
+\begin{align*}
+ \vec F_1 &= \vec f( \vec x_0 , t_0 ) \\
+ \vec x' &= \vec x_0 + a_{21} \cdot \Delta t \cdot \vec F_1 \\
+ \vec F_2 &= \vec f( \vec x' , t_0 + c_1\cdot\Delta t ) \\
+ \vec x' &= \vec x_0 + a_{31} \cdot \Delta t \cdot \vec F_1 + a_{32} \cdot \Delta t \cdot \vec F_2 \\
+         &\vdots \\
+ \vec x_1 &= \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s
+\end{align*} 
+
+\end{frame}
+
+\begin{frame}[fragile]
+\heading{Strucutural Requirements}
+\begin{align*}
+ {\color{red}\vec F_1} &= \vec f( {\color{red}\vec x_0} , {\color{blue}t_0} ) & %\\
+ {\color{red}\vec x'} &= {\color{red}\vec x_0} + {\color{dark-green}a_{21}} \cdot {\color{blue}\Delta t} \cdot {\color{red}\vec F_1}
+\end{align*}
+ 
+Types:
+\begin{itemize}
+ \item {\color{red} vector type}, mostly, but not neccessarily, some container like \lstinline+vector<double>+ {\scriptsize (actually we have \lstinline+state_type+ and \lstinline+deriv_type+)}
+ \item {\color{blue} time type}, usually \lstinline+double+, but might be a multi-precision type
+ \item {\color{dark-green} value type}, most likely the same as time type
+\end{itemize}
+\pause
+\vspace{0.5em}
+
+Function Call:
+\begin{lstlisting}
+void rhs( const vector_type &x , vector_type &dxdt , const time_type t )
+{ /* user defined */ }
+
+rhs( x0 , F1 , t ); //memory allocation for F1?
+\end{lstlisting}
+\begin{itemize}
+ \item Memory allocation for temporary results (\lstinline+F+, \lstinline+x'+)
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+ \heading{Computational Requirements}
+\begin{align*}
+  \vec x_1 = \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s
+\end{align*}
+
+\begin{itemize}
+ \item vector-vector addition
+ \item scalar-scalar multiplication
+ \item scalar-vector multiplication
+\end{itemize}
+\centerline{\small ($\longrightarrow$ vector space)}
+
+\end{frame}
+
+%\subsection{Memory Management}
+
+\begin{frame}[fragile]
+ \heading{Type Declarations}
+
+Tell \odeint\ which types your are working with:
+
+\begin{lstlisting}
+/* define your types */
+typedef vector<double> state_type;
+typedef vector<double> deriv_type;
+typedef double value_type;
+typedef double time_type;
+
+/* define your stepper algorithm */
+typedef runge_kutta4< state_type , value_type , deriv_type , time_type > stepper_type;
+\end{lstlisting}
+
+Reasonable standard values for the template parameters allows for:
+
+\begin{lstlisting}
+typedef runge_kutta4<state_type> stepper_type;
+\end{lstlisting}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Memory Allocation / Resizing}
+Two possible situations: dynamic size / fixed size \lstinline+vector_type+
+\vspace{0.5em}
+
+\begin{columns}[t]
+
+ \begin{column}{0.5\linewidth}
+  \begin{block}{dynamic size - memory allocation required}
+   \begin{itemize}
+    \item e.g. \lstinline+vector<double>+
+    \item declare type as resizeable
+    \item specialize resize template
+    \item use \lstinline+initially_resizer+ or \lstinline+always_resizer+ in stepper algorithm
+   \end{itemize}
+  \end{block}
+ \end{column}
+
+ \begin{column}{0.5\linewidth}
+  \begin{block}{fixed size - memory allocation not required}
+   \begin{itemize}
+    \item e.g. \lstinline+array<double,N>+
+    \item declare type as not resizeable
+    \item that's it
+   \end{itemize}
+  \end{block}
+ \end{column}
+
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{Declare Resizeability}
+
+\begin{lstlisting}
+/* by default any type is not resizable */
+template< class Container >
+struct is_resizeable
+{
+    typedef boost::false_type type;
+    const static bool value = type::value;
+};
+
+/* specialization for std::vector */
+template< class T, class A >
+struct is_resizeable< std::vector< T , A  > >
+{
+    typedef boost::true_type type;
+    const static bool value = type::value;
+}; 
+\end{lstlisting}
+To use a new dynamic sized type, this has to be specialized by the user.
+\end{frame}
+
+
+\begin{frame}[fragile]
+\heading{Tell \odeint\ how to resize}
+Again: only required if \\
+\centerline{\lstinline+is_resizeable<state_type>::type == boost::true_type+.}
+\vspace{0.5em}
+
+Class Template responsible for resizing:
+\begin{lstlisting}
+template< class StateOut , class StateIn >
+struct resize_impl
+{
+    /* standard implementation */
+    static void resize( StateOut &x1 , const StateIn &x2 )
+    {
+        x1.resize( boost::size( x2 ) );
+    }
+};
+\end{lstlisting}
+
+For anything that does not support \lstinline+boost::size+ or \lstinline+resize+ the user must provide a specialization.
+
+\end{frame}
