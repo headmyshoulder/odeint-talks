@@ -12,99 +12,129 @@
 
 \vspace{2ex}
 
-\begin{minipage}{0.35\textwidth}
+\begin{columns}[T]
+  \begin{column}{0.35\textwidth}
     \includegraphics[draft=false,width=1.0\textwidth]{pendulum.pdf}
-\end{minipage}
-\hspace{2ex}
-\begin{minipage}{0.5\textwidth}
+
+   \vspace{4ex}
+  \end{column}
+
+  \begin{column}{0.65\textwidth}
  \only<1>{
- Pendulum -- Newtons law
+ Newtons law: $m a = F$
 
- 
- $m a = F$
+ \vspace{2ex}
 
- Acceleration
+ Acceleration:  $a = l \ddot{\varphi}$
 
- $a = l \ddot{\varphi}$
+ \vspace{2ex}
 
- Force
+ Force: $F=F_N = - m g \sin \varphi$
 
- $F=F_N = - m g \sin \varphi$
+ \vspace{4ex}
 
- Result in an ode for the angle
+ $\Longrightarrow$ {\bf ODE for $\varphi$}
 
- $\ddot{\varphi} = - g / l \sin \varphi $
+ $$\ddot{\varphi} = - g / l \sin \varphi = -\omega_0^2 \sin \varphi$$
  }
 
  \only<2>
  {
 
- $\ddot{\varphi} = - g / l \sin \varphi $
+ $$\ddot{\varphi} = - \omega_0^2 \sin \varphi $$
 
- Small angle $\sin \varphi \approx \phi$
+ Small angle: $\sin \varphi \approx \varphi$
 
- Harmonic oscillator
+ \vspace{2ex}
 
- $\ddot{\varphi} = - g / l \varphi$
+ Harmonic oscillator $\ddot{\varphi} = - \omega_0^2 \varphi$
 
- An analytic solution is known
+ \vspace{2ex}
 
- $\varphi = A \cos \omega t + B \sin \omega t$
+ Analytic solution: $\varphi = A \cos \omega_0 t + B \sin \omega_0 t$
 
- Amplitude $A$ and $B$ must be determined from initial conditions:
+ \vspace{2ex}
 
- $\varphi(t=0) = \varphi_0$, $\dot{\varphi}(t=0) = \dot{\varphi}_0$
+ Determine $A$ and $B$ from initial condition\rem{:
 
- $B=\varphi_0$, $A=\dot{\varphi}_0 / \omega$
+ \centerline{$\varphi(t=0) = \varphi_0 \,\, \text{,} \quad \dot{\varphi}(t=0) = \dot{\varphi}_0$}
+
+ \centerline{$B=\varphi_0 \,\, \text{,} \quad A=\dot{\varphi}_0 / \omega$}}
 
  }
 
  \only<3>{
 
- Full equation $\ddot{\varphi} = g / l \sin \varphi $
+ Full equation: $\ddot{\varphi} = -\omega_0^2 \sin \varphi $
 
- has also analytic solution Jacobi elliptic function
+ \vspace{2ex}
 
- Lets enhance the ODE, add friction and external driving
+ Pendulum with friction and external driving:
 
- $\ddot{\varphi} = g / l \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega t $
+ $$\ddot{\varphi} = -\omega_0^2 \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega_E t $$
 
- No analytic solution is known. We need to solve this equation numerically.
+ \vspace{2ex}
+
+ No analytic solution is known
+
+ \vspace{2ex}
+
+ $\Longrightarrow$ {\bf Solve this equation numerically.}
 
  }
 
  \only<4>{
 
- $\ddot{\varphi} = g / l \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega t $
+ $$\ddot{\varphi} = -\omega_0^2 \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega_E t $$
+
+ \vspace{2ex}
 
  Create a first order ODE
 
- $x_1 = \varphi$, $x_2 = \dot{\varphi}$
+ \vspace{1ex}
 
- $\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+ \centerline{$x_1 = \varphi \,\, \text{,} \quad x_2 = \dot{\varphi}$}
 
- $x_1$ and $x_2$ are the state space variables.
+ \vspace{-3ex}
+ \begin{align*}
+   \dot{x_1} &= x_2 \\
+   \dot{x_2} &= - \omega_0  \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t  
+ \end{align*}
+
+
+ $x_1$ and $x_2$ are the state space variables
 
  }
- 
-\end{minipage}
+   
+  \end{column}
+\end{columns}
 
  
+
 \end{frame}
+
+
+
+
+
 
 
 \begin{frame}[fragile]
 
 \centerline{ \Large Let's solve the pendulum example numerically}
 
-
+\vspace{2ex}
 \begin{lstlisting}
 #include <boost/numeric/odeint.hpp>
 
 namespace odeint = boost::numeric::odeint;
 \end{lstlisting}
 
-$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+\vspace{2ex}
+
+\centerline{$\dot{x_1} = x_2 \,\,\text{,} \quad \dot{x_2} = - \omega_0 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$}
+
+\vspace{2ex}
 \begin{lstlisting}
 typedef std::array<double,2> state_type;
 \end{lstlisting}
@@ -115,19 +145,25 @@ typedef std::array<double,2> state_type;
 
 \centerline{ \Large Let's solve the pendulum example numerically}
 
-$\dot{x_1} = x_2$, $\dot{x_2} = - g / l \sin x_1 - \mu x_2 + \varepsilon \sin \omega t$
+\vspace{2ex}
+
+$\dot{x_1} = x_2$, $\dot{x_2} = - \omega_0^2 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$
+
+\vspace{2ex}
+
 \begin{lstlisting}
 struct pendulum
 {
-  double m_mu , m_omega , m_epsilon;
+  double m_mu, m_omega, m_eps;
 
-  pendulum( double mu , double omega , double epsilon )
-  : m_mu( mu ) , m_omega( omega ) , m_epsilon( epsilon ) { }
+  pendulum(double mu,double omega,double eps)
+  : m_mu(mu),m_omega(omega),m_eps(eps) { }
 
-  void operator()( const state_type &x , state_type &dxdt , double t ) const
+  void operator()(const state_type &x,state_type &dxdt,double t) const
   {
     dxdt[0] = x[1];
-    dxdt[1] = - sin( x[0] ) - m_mu * x[1] + m_epsilon * sin( m_omega * t );
+    dxdt[1] = -sin(x[0]) - m_mu * x[1] +
+        m_eps * sin(m_omega*t);
   }
 };
 \end{lstlisting}
@@ -137,7 +173,9 @@ struct pendulum
 \begin{frame}[fragile]
  \centerline{ \Large Let's solve the pendulum example numerically}
 
-$\varphi(0) = 1$, $\dot{\varphi}(0) = 0$
+\vspace{2ex}
+$\varphi(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = 0$
+\vspace{2ex}
 
 \begin{lstlisting}
 odeint::rk4< state_type > rk4;
@@ -151,17 +189,29 @@ rk4.do_step( p , x , t , dt );
 t += dt;
 \end{lstlisting}
 
+\vspace{2ex}
+
 $x(0) \mapsto x(\Delta t)$
 
+\end{frame}
+
+\begin{frame}[fragile]
+ \centerline{ \Large Let's solve the pendulum example numerically}
+
+\vspace{2ex}
+
+
 \begin{lstlisting}
-std::cout << t << " " << x[0] << " " << x[1] << "\n";
+std::cout<<t<<" "<< x[0]<<" "<<x[1]<<"\n";
 for( size_t i=0 ; i<10 ; ++i )
 {
   rk4.do_step( p , x , t , dt );
   t += dt;
-  std::cout << t << " " << x[0] << " " << x[1] << "\n";
+  std::cout<<t<<" "<< x[0]<<" "<<x[1]<<"\n";
 }
 \end{lstlisting}
+
+\vspace{2ex}
 
 $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
@@ -169,156 +219,201 @@ $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
 
 \begin{frame}[fragile]
- Simulation
+ \heading{Simulation}
 
- $\mu=0$, $\omega_E = 0$, $\varepsilon=0$
+ \vspace{4ex}
 
- $\mu=0.1$, $\omega_E = 0$, $\varepsilon=0$
+ \centerline{Oscillator: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
- $\mu=0.1$, $\omega_E = 1.05$, $\varepsilon=1.5$
+ \vspace{2ex}
+ 
+\centerline{Damped oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+
+ \vspace{2ex}
+
+ \centerline{Damped, driven oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
 \end{frame}
 
 \begin{frame}[fragile]
 
-  Steppers
+  \heading{Different Steppers}
+
+  \vspace{2ex}
+
   \begin{lstlisting}
-odeint::runge_kutta_fehlberg78< state_type > stepper;
+runge_kutta_fehlberg78< state_type > s;
   \end{lstlisting}
 
   \begin{lstlisting}
-odeint::runge_kutta_dopri5< state_type > stepper;
+runge_kutta_dopri5< state_type > s;
   \end{lstlisting}
 
-  but controlled steppers are much better
+  \vspace{2ex}
+  Symplectic steppers (for Hamiltonian systems)
+  \begin{lstlisting}
+symplectic_rkn_sb3a_mclachlan< state_type > s;
+  \end{lstlisting}
+
+  \vspace{2ex}
+  Implicit steppers (for stiff systems)
+  \begin{lstlisting}
+rosenbrock4< double > s;
+  \end{lstlisting}
+
+  \vspace{2ex}
+  {\bf These steppers perform one step with constant step size!}
 
 \end{frame}
 
-
-\begin{frame}[fragile]
- Controlled steppers
+\begin{frame}
+ \heading{Controlled steppers -- Step size control}
 
  insert graphic
 
- \begin{lstlisting}
-auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
-odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
- \end{lstlisting}
-
- tries to perform the step and updates $x$, $t$, and $dt$
-
- it works because runge kutta fehlberg has error estimation
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-
-Controlled steppers
-
-\begin{lstlisting}
-auto stepper = make_controlled( 1.0e-6 , 1.0e6 ,  odeint::runge_kutta_fehlberg78< state_type >() );
-while( t < t_end )
-{
-  odeint::controlled_step_result res = stepper.try_step( p , x , t , dt );
-  while( res != odeint::success )
-  {
-    res = stepper.try_step( p , x , t , dt );
-  }
-}
-\end{lstlisting}
-
-Use integrate functions
-
-\begin{lstlisting}
-integrate_adaptive( stepper , x , p , t_start , t_end , dt ); 
-integrate_adaptive( stepper , x , p , t_start , t_end , dt , observer );
-\end{lstlisting}
-
-\begin{lstlisting}
-integrate_adaptive( stepper , p , x , t_start , t_end , dt ,
-  std::cout << arg2 << "\t" << arg1[0] << "\t" << arg1[1] << "\n" );
-\end{lstlisting}
-
-integrate\_const, integrate\_times, \dots
-
-\end{frame}
-
-
-
-\begin{frame}[fragile]
-
-\begin{lstlisting}
-integrate_const( stepper , p , x , t , dt , observer );
-\end{lstlisting}
-
-problem with controlled stepper
-
-\begin{lstlisting}
-integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) , p , x , t , dt );
-\end{lstlisting}
-
-
-\end{frame}
-
-
-
-
-\begin{frame}
- More steppers
-
- implicit, symplectic, predictor-corrector, multistep-methods
-
- maybe small table
-\end{frame}
-
-
-
-
-\begin{frame}
- small summary (kann vielleicht auch wieder weg)
- \begin{itemize}
-  \item Very easy example -- harmonic oscillator
-  \item Basic features of odeint
-  \item Different stepper
-  \item Controlled steppers
-  \item Dense output steppers
-  \item integrate functions
- \end{itemize}
-
- Now, advanced features
-
-\end{frame}
-
-
-
-\begin{frame}
- \slideheading{extended systems}
-
- \begin{itemize}
-  \item<1->Lattice systems
-  \item<2->Discretizations of PDEs
-  \item<3->ODEs on Graphs
-  \item<4->granular systems
- \end{itemize}
-
- High-Performance-Computing
-
- zu jedem Punkt ein Bildchen
  
 \end{frame}
 
 
 
 \begin{frame}[fragile]
- \slideheading{Phase oscillator lattices} 
+ 
+ \heading{Controlled steppers}
+ 
+ \vspace{2ex}
 
- Any oscillator can be described by one variable, its phase.
+ \begin{lstlisting}
+auto s = make_controlled(1.0e-6,1.0e6,
+  runge_kutta_fehlberg78<state_type>() );
+controlled_step_result r = 
+  s.try_step(ode,x,t,dt);
+ \end{lstlisting}
 
- (Bild aus phd Talk)
+ Tries to perform the step and updates $x$, $t$, and $dt$!
 
- Trivial dynamics: $\dot{\varphi}=\omega \varphi$
+ \vspace{4ex}
 
-Vielleicht zusammenfuehren mit der naechsten Folie
+ It works because Runge-Kutta-Fehlberg has error estimation:
+
+ \begin{lstlisting}
+runge_kutta_fehlberg78<state_type> s;
+s.do_step(ode,x,t,dt,xerr);
+ \end{lstlisting}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+\heading{Controlled steppers}
+
+\vspace{2ex}
+
+\begin{lstlisting}
+auto s = make_controlled(1.0e-6,1.0e6,
+  runge_kutta_fehlberg78<state_type>() );
+while( t < t_end )
+{
+  controlled_step_result res
+    = s.try_step(ode,x,t,dt);
+  while( res != success )
+  {
+    res = s.try_step(ode,x,t,dt);
+  }
+}
+\end{lstlisting}
+
+\centerline{Non-trivial time-stepping logic}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+  \heading{Use integrate functions!}
+
+\vspace{2ex}
+
+
+\begin{lstlisting}
+integrate_adaptive(s,ode,x,t_start,t_end,dt); 
+integrate_adaptive(s,ode,x,t_start,t_end,dt,observer);
+\end{lstlisting}
+
+Observer: Callable object {\tt obs(x,t)}
+
+\vspace{4ex}
+Example (using Boost.Phoenix):
+\begin{lstlisting}
+integrate_adaptive(s,ode,x,t_start,t_end,dt,
+  cout<< arg1[0] << " " << arg1[1] << "\n" );
+\end{lstlisting}
+
+\vspace{2ex}
+More integrate versions:
+
+{\tt integrate\_const}, {\tt integrate\_times}, \dots
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+
+\begin{lstlisting}
+integrate_const(s,ode,x,t,dt,obs);
+\end{lstlisting}
+
+Grafik with problem and solution
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+
+\heading{Dense output}
+
+\vspace{2ex}
+ 
+\begin{lstlisting}
+auto s = make_dense_output( 1.0e-6 , 1.0e-6 ,
+    runge_kutta_dopri5< state_type >() );
+integrate_const( s , p , x , t , dt );
+\end{lstlisting}
+
+Interpolation between two steps with same precision as the original stepper!
+
+Grafik!
+
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}
+ \heading{More steppers}
+
+ \vspace{2ex}
+
+ {\bf Stepper Concepts}: Stepper, ErrorStepper, ControlledStepper, DenseOutputStepper
+
+ \vspace{2ex}
+
+ {\bf Stepper types}: 
+ \begin{itemize}
+  \item Implicit -- {\tt implicit\_euler}, {\tt rosenbrock4}
+  \item Symplectic -- {\tt symplectic\_rkn\_sb3a\_mclachlan}
+  \item Predictor-Corrector -- {\tt adams\_bashforth\_moulton}
+  \item Extrapolation -- {\tt bulirsch\_stoer}
+  \item Multistep methods -- {\tt adams\_bashforth\_moulton}
+ \end{itemize}
+
+ \vspace{2ex}
+ Some of them have step-size control and dense-output!
 
 \end{frame}
 
@@ -326,7 +421,79 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
 
 \begin{frame}
- \slideheading{Phase oscillator lattices} 
+ 
+ \heading{Small summary}
+
+ \vspace{2ex}
+ \begin{itemize}
+  \item Very easy example -- harmonic oscillator
+  \item Basic features of odeint
+  \item Different stepper -- Controlled steppers, Dense output steppers
+  \item Integrate functions
+ \end{itemize}
+
+ \vspace{2ex}
+
+ \pause
+ \centerline{\bf Now, lets look at the advanced features!}
+
+\end{frame}
+
+
+
+\begin{frame}
+ 
+\heading{Extended systems}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Lattice systems
+
+  %\includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
+\end{center} \end{minipage}
+\pause
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Discretiztations of PDEs
+\end{center} \end{minipage}
+
+\pause
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}\begin{center}
+  Granular systems
+
+  \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
+ \end{center} \end{minipage}
+\pause
+\begin{minipage}{0.48\textwidth}\begin{center}
+  ODEs on graphs
+
+  \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
+ \end{center}\end{minipage}
+
+ \vspace{2ex}
+ \centerline{\bf High-Performance-Computing}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Phase oscillator lattices}
+
+ \vspace{2ex}
+
+ \begin{columns}[T]
+  \begin{column}{0.35\textwidth}
+   \includegraphics[draft=false,width=1.0\textwidth]{vdp.pdf}  
+  \end{column}
+  \begin{column}{0.63\textwidth}
+ Any oscillator can be described by one variable, its phase.
+
+ 
+
+ Trivial dynamics: $\dot{\varphi}=\omega \varphi$
 
  Coupled phase oscillators
 
@@ -340,6 +507,10 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
  $\dot{\varphi}_k = \omega_k \varphi_k + q( \varphi_{k+1} , \varphi_k ) + q( \varphi_k , \varphi_{k-1} )$
 
+   
+  \end{column}
+ \end{columns}
+
 \end{frame}
 
 
@@ -347,19 +518,23 @@ Vielleicht zusammenfuehren mit der naechsten Folie
 
 \begin{frame}[fragile]
  
- Phase compacton lattices
+ \heading{Phase compacton lattice}
 
- $\dot{\varphi}_k = \cos \varphi_{k+1} - \cos \varphi_{k-1}$
+ \vspace{2ex}
 
- state space contains $N$ variables
+ $$\dot{\varphi}_k = \cos \varphi_{k+1} - \cos \varphi_{k-1}$$
+
+ \vspace{2ex}
+
+ State space contains $N$ variables
 
  \begin{lstlisting}
 typedef std::vector<double> state_type;
  \end{lstlisting}
 
- Animation with compactons and chaos
+ Animation
 
- space-time plot for visualization of compactons and chaos
+ Space-time plot for visualization of compactons and chaos
 
 \end{frame}
 
@@ -369,11 +544,15 @@ typedef std::vector<double> state_type;
 
 \begin{frame}[fragile]
 
-Ensemble of phase oscillators
+ \heading{Ensemble of phase oscillators}
 
-$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$
+ \vspace{2ex}
 
-Synchronization, all oscillator oscillates with the same frequency
+$$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$$
+
+{\bf Synchronization} -- all oscillator oscillates with the same frequency
+
+ \vspace{2ex}
 
 Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
@@ -418,7 +597,7 @@ Vielleicht koennen diese beiden Folien weg
 
 \begin{frame}[fragile]
 
-\slideheading{Solving ODEs with CUDA using thrust}
+\heading{Solving ODEs with CUDA using thrust}
 
 What is Thrust
 \begin{quotation}
@@ -434,7 +613,7 @@ Thrust is a parallel algorithms library which resembles the C++ Standard Templat
 
 \begin{frame}[fragile]
  
-\slideheading{Solving ODEs with CUDA using thrust}
+\heading{Solving ODEs with CUDA using thrust}
 
 Where to use it
 \begin{itemize}
@@ -449,7 +628,7 @@ Where to use it
 
 
 \begin{frame}[fragile]
- \slideheading{Lorenz system -- Parameter study}
+ \heading{Lorenz system -- Parameter study}
 
  \begin{equation}
   \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
@@ -463,7 +642,7 @@ picture of Lorenz system
 
 
 \begin{frame}[fragile]
-  \slideheading{Lorenz system -- Parameter study}
+  \heading{Lorenz system -- Parameter study}
 
 Vary $R$ from $0$ to $50$, for which parameters the system is chaotic?
 
