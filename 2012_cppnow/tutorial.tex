@@ -215,6 +215,8 @@ for( size_t i=0 ; i<10 ; ++i )
 
 $x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
 
+Grafik einfuegen
+
 \end{frame}
 
 
@@ -562,23 +564,22 @@ Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
 \begin{frame}[fragile]
 
-Classical implementation
+\heading{Ensemble of phase oscillators}
 
 \begin{lstlisting}
 typedef std::vector<double> state_type;
 
-struct phase_ensemble
+struct ensemble
 {
-    state_type m_omega;
-    double m_epsilon;
+    state_type m_omega,m_eps;
 
-    phase_ensemble(size_t n,double g=1.0,double epsilon=1.0)
-    : m_omega(n,0.0),m_epsilon(epsilon)
+    ensemble(size_t n,double eps)
+    : m_omega(n,0.0),m_eps(eps)
     {
-        create_frequencies(g);
+        create_frequencies();
     }
 
-    void create_frequencies(double g) { ... }
+    void create_frequencies() { ... }
 
     void operator()(const state_type &x,state_type &dxdt,double t) const
     {
@@ -597,15 +598,16 @@ Vielleicht koennen diese beiden Folien weg
 
 \begin{frame}[fragile]
 
-\heading{Solving ODEs with CUDA using thrust}
+\heading{Solving ODEs with CUDA using Thrust}
 
-What is Thrust
+\vspace{4ex}
 \begin{quotation}
 Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL). Thrust's high-level interface greatly enhances developer productivity while enabling performance portability between GPUs and multicore CPUs. Interoperability with established technologies (such as CUDA, TBB and OpenMP) facilitates integration with existing software. Develop high-performance applications rapidly with Thrust!
 \end{quotation}
 
+\vspace{2ex}
 
-\includegraphics[draft=false,width=0.3\textwidth]{thrust_logo.png}
+\centerline{\includegraphics[draft=false,width=0.3\textwidth]{thrust_logo.png}}
  
 
 \end{frame}
@@ -615,11 +617,13 @@ Thrust is a parallel algorithms library which resembles the C++ Standard Templat
  
 \heading{Solving ODEs with CUDA using thrust}
 
-Where to use it
+\vspace{2ex}
+Applications and use cases for GPUs:
+
 \begin{itemize}
- \item Large systems, discretizations of ODE, lattice systems, granular systems, etc.
- \item Parameter studies, integrate many ODEs in parallel with different parameters
- \item Initial value studies, integrate the same ODE with many different initial conditions in parallel
+ \item Large systems, discretizations of PDEs, lattice systems, granular systems, etc.
+ \item Parameter studies, solve many ODEs in parallel with different parameters
+ \item Initial value studies, solve the same ODE with many different initial conditions in parallel
 \end{itemize}
 
 
@@ -628,35 +632,58 @@ Where to use it
 
 
 \begin{frame}[fragile]
- \heading{Lorenz system -- Parameter study}
+ 
+\heading{Lorenz system -- Parameter study}
 
- \begin{equation}
+ $$
   \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
- \end{equation}
+ $$
 
-Standard parameters $\sigma=10$, $R=28$, $b=8/3$ deterministic chaos, butterfly effect
+Standard parameters $\sigma=10$, $R=28$, $b=8/3$
 
-picture of Lorenz system
+\vspace{2ex}
+Deterministic chaos -- Butterfly effect
+
+
+Picture of Lorenz system
 
 \end{frame}
 
 
 \begin{frame}[fragile]
+ 
   \heading{Lorenz system -- Parameter study}
 
-Vary $R$ from $0$ to $50$, for which parameters the system is chaotic?
 
-Lyapunov exponents, perturbations of the original system
+ $$
+  \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
+ $$
+
+
+Does one observ chaos over the whole parameter range?
+
+\vspace{2ex}
+
+Lyapunov exponents:
+\begin{itemize}
+ \item Measure of chaos
+ \item Perturbations of the original system
+\end{itemize}
+
+\vspace{2ex}
+Vary $R$ from $0$ to $50$ and calculate the Lyapunov exponents!
+
+\vspace{2ex}
+\centerline{\bf Use CUDA and Thrust!}
 
 \end{frame}
 
 
-
-
-
 \begin{frame}[fragile]
 
-Algebras and operations
+ \heading{odeint's algebras and operations}
+
+ \vspace{2ex}
 
 Euler method
 
