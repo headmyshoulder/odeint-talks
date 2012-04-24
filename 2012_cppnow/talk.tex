@@ -22,7 +22,8 @@
 \newcommand{\mathbi}[1]{\textbf{\em #1}}
 \newcommand{\rem}[1]{}
 
-\newcommand{\heading}[1]{\centerline{\Large #1}}
+\newcommand{\heading}[1]{\centerline{\Large #1} \vspace{0.5em}}
+%\newcommand{\heading}[1]{\frametitle{\centerline{#1}}}
 
 \newcommand{\odeint}[0]{\textsc{odeint}}
 
@@ -122,10 +123,10 @@
 \definecolor{dark-green}{rgb}{0,0.4,0}
 \definecolor{dark-red}{rgb}{0.2,0,0}
 
-
+\newcommand{\highlight}[1]{\bf #1}
 
 \lstset{
-         basicstyle=\scriptsize\ttfamily, % Standardschrift
+         basicstyle=\small\ttfamily, % Standardschrift
          %numbers=left,               % Ort der Zeilennummern
          numberstyle=\tiny,          % Stil der Zeilennummern
          %stepnumber=2,               % Abstand zwischen den Zeilennummern
