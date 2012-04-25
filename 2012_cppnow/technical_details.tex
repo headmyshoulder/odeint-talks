@@ -191,3 +191,33 @@ struct resize_impl
 For anything that does not support \lstinline+boost::size+ or \lstinline+resize+ the user must provide a specialization.
 
 \end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Scalar Computations}
+
+For the scalar types we require the following:
+
+Assume:
+\begin{lstlisting}
+time_type t , dt;
+value_type a1 , a2 , c;
+\end{lstlisting}
+
+Valid Expressions:
+\begin{itemize}
+ \item \lstinline+a1 = static_cast< value_type >(1)+
+ \item \lstinline+a1*a2+
+ \item \lstinline+a1/a2+
+ \item \lstinline!t + c*dt!
+ \item \lstinline!t + dt/c!
+ \item \lstinline!t += dt!
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Vector Computations}
+
+\end{frame}
