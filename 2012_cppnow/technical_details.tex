@@ -220,4 +220,226 @@ Valid Expressions:
 \begin{frame}[fragile]
  \heading{Vector Computations}
 
+Remember: $\vec x_1 = \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s$
+
+\vspace{0.5em}
+
+Split into two parts:
+
+\begin{description}
+ \item[1.~Algebra:] responsible for iteration over vector elements
+ \item[2.~Operations:] does the mathematical computation on the elements
+\end{description}
+
+\vspace{0.5em}
+
+Very similar to \lstinline+std::for_each+, \odeint\ uses something like:
+
+\begin{lstlisting}
+Algebra algebra;
+
+algebra.for_each3( x1 , x0 , F1 ,
+    Operations::scale_sum3( 1.0, b1*dt );
+\end{lstlisting}
+\pause
+
+The types \lstinline+Algebra+ and \lstinline+Operations+ are template parameters of the steppers, hence exchangeable.
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Vector Computations}
+
+\begin{lstlisting}
+time_type dt;
+state_type x1, x2, ...
+algebra_type algebra;
+\end{lstlisting}
+
+Algebra has to have defined the following member functions:
+
+\begin{itemize}
+ \item \lstinline+algebra.for_each1( x1 , unary_operation );+
+ \item \lstinline+algebra.for_each2( x1, x2, binary_operation );+
+ \item \lstinline+algebra.for_each3( ... );+
+
+\[\vdots\]
+
+ \item \lstinline+algebra.for_each15( .. , fifteen_ary_op );+
+\end{itemize}
+
+\pause
+\odeint\ takes the operations from the class \lstinline+Operations+.
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{Operations}
+
+\lstinline+Operations+ is a class with the following member classes:
+\begin{itemize}
+ \item \lstinline+scale+
+ \item \lstinline+scale_sum1+
+ \item \lstinline+scale_sum2+
+% \item \lstinline+scale_sum3+
+\[ \vdots \]
+ \item \lstinline+scale_sum14+
+\end{itemize}
+
+These classes need a constructor and \lstinline+()+-operator that works together with the algebra:
+\begin{lstlisting}
+value_type b1, b2;
+time_type dt;
+algebra.for_each4( x1 , x0 , F1 ,
+   Operations::scale_sum3( 1.0, b1*dt );
+\end{lstlisting}
+
+This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Example Implementation: \lstinline+range_algebra+ }
+
+\begin{lstlisting}[basicstyle=\scriptsize]
+struct range_algebra {
+...
+ template< class S1 , class S2 , class S3 , class Op >
+ static void for_each2( S1 &s1, S2 &s2, S3 &s3, Op op )
+ {
+   detail::for_each2( boost::begin(s1), boost::end(s1),
+                      boost::begin(s2), boost::begin(s3), 
+                      op );
+ }
+...
+};
+
+namespace detail {
+...
+ template< class Iter1, class Iter2, Iter3, class Op >
+ void for_each2( Iter1 first1, Iter1 last1, 
+                 Iter2 first2, Iter3 first3, Op op )
+ {
+     for( ; first1 != last1 ; )
+         op( *first1++ , *first2++ , *first3++ );
+ }
+...
+};
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Example Implementation: \lstinline+default_operations+ }
+\begin{lstlisting}
+template< class Fac1 , class Fac2 >
+struct scale_sum2
+{
+  const Fac1 m_alpha1;
+  const Fac2 m_alpha2;
+
+  scale_sum2( Fac1 &alpha1 , Fac2 &alpha2 ) 
+    : m_alpha1( alpha1 ) , m_alpha2( alpha2 ) 
+  { }
+
+  template< class T1 , class T2 , class T3 >
+  void operator()( T1 &t1 , const T2 &t2 , const T3 &t3 )
+  { t1 = m_alpha1 * t2 + m_alpha2 * t3; }
+
+  typedef void result_type;
+};
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\lstinline+range_algebra & default_operations+ can be used with any Container that supports Boost.Range and whose \lstinline+container::value_type+ supports operators \lstinline!+,*!.
+
+For example \lstinline+vector< double >+:
+\begin{lstlisting}
+typedef vector< double > state_type;
+typedef double value_type;
+typedef double time_type;
+
+typedef runge_kutta4< state_type , value_type , 
+                      state_type , time_type , 
+                      range_algebra , 
+                      default_operations 
+                    > stepper_type
+\end{lstlisting}
+As these are also the default values, this can be shortened:
+\begin{lstlisting}
+typedef runge_kutta4<state_type> stepper_type; 
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \lstinline+range_algebra & default_operations+ work also with
+
+\begin{itemize}
+ \item \lstinline+vector< complex<double> >+
+ \item \lstinline+list< double >+
+ \item \lstinline+array< double , N >+
+\end{itemize}
+
+\pause
+What about
+\begin{itemize}
+ \item Ublas \lstinline+vector+
+ \item trivial \lstinline+state_type+s like \lstinline+double+
+ \item generally: \lstinline+state_type+ that support operators \lstinline!+,*!
+\end{itemize}
+
+\vspace{1em}
+\centerline{$\longrightarrow$ \lstinline+vector_space_algebra+!}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{\lstinline+vector_space_algebra+}
+
+\begin{lstlisting}
+struct vector_space_algebra {
+...
+ template< class S1 , class S2 , class S3 , class Op >
+ static void for_each3( S1 &s1 , S2 &s2 , 
+                        S3 &s3 , Op op )
+ {
+   op( s1 , s2 , s3 );
+ }
+...
+};
+\end{lstlisting}
+
+\begin{itemize}
+ \item delegates operations directly to the \lstinline+state_type+
+ \item no iteration
+ \item works together with \lstinline+default_operations+ with any \lstinline+state_type+ that supports operators \lstinline!+,*!
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Other Examples}
+
+\begin{description}
+ \item[fusion\_algebra:] works with \lstinline+fusion::vector+ as \lstinline+state_type+, (e.g.\ Boost.Units)
+ \item[thrust\_algebra \& thrust\_operations:] Use thrust library to perform computation on CUDA graphic cards
+ \item[nested\_algebra:] can handle nested containers that support Boost.Range, e.g.\ \lstinline+vector< vector<double> >+
+\end{description}
+
+See tutorial and documentation on \verb+www.odeint.com+ for more.
+
+\pause
+\vspace{0.5em}
+\begin{block}{Important}
+ Division into Algebra and Operations gives us great flexibility. However, State\_Type, Algebra and Operations must coorporate to make \odeint\ work!
+\end{block}
+
 \end{frame}
