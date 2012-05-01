@@ -633,7 +633,7 @@ Applications and use cases for GPUs:
 
 \begin{frame}[fragile]
  
-\heading{Lorenz system -- Parameter study}
+\heading{Lorenz system -- Deterministic chaos}
 
  $$
   \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
@@ -642,10 +642,13 @@ Applications and use cases for GPUs:
 Standard parameters $\sigma=10$, $R=28$, $b=8/3$
 
 \vspace{2ex}
-Deterministic chaos -- Butterfly effect
+Perturbations grow exponentially fast -- Butterfly effect
+
+\vspace{4ex}
+
+\centerline{\includegraphics[draft=false,width=0.8\textwidth]{lorenz.jpg}}
 
 
-Picture of Lorenz system
 
 \end{frame}
 
@@ -681,44 +684,142 @@ Vary $R$ from $0$ to $50$ and calculate the Lyapunov exponents!
 
 \begin{frame}[fragile]
 
- \heading{odeint's algebras and operations}
+ \heading{Intermezzo: Algebras and operations}
 
  \vspace{2ex}
 
 Euler method
 
-$ x_i(t+\Delta t) = x_i(t) + \Delta t * f_i(x)$
+$$ x_i(t+\Delta t) = x_i(t) + \Delta t * f_i(x)$$
 
-Algebras perform the iteration over $i$ and operation the elementary addition.
+\begin{itemize}
+\item Algebras perform the iteration over $i$
+\item Operations perform the elementary addition.
+\end{itemize}
 
-Algebras and operations enter the stepper as template parameters
+\vspace{2ex}
 
 \begin{lstlisting}
-typedef runge_kutta4<state_type,value_type,deriv_type,time_type,
-    algebra,operations,resize_policy> stepper; 
+typedef runge_kutta4< state_type ,
+   value_type , deriv_type , time_type,
+   algebra , operations , resizer > stepper; 
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+ \heading{Intermezzo: Algebras and operations}
+
+\begin{lstlisting}
+typedef runge_kutta4< state_type ,
+   value_type , deriv_type , time_type,
+   algebra , operations , resizer > stepper; 
 \end{lstlisting}
 
 \begin{itemize}
  \item {\tt default\_operations}
  \item {\tt range\_algebra} -- Boost.Ranges
  \item {\tt vector\_space\_algebra} -- Passes the state directly to the operations
- \item {\tt fusion\_algebra} -- For compile time sequences, like $std::tuple< double , double >$
- \item {\tt thrust\_algebra} and {\tt thrust\_algebra} -- for thrust
+ \item {\tt fusion\_algebra} -- Compile-time sequences, like {\tt std::tuple< double , double >}
+ \item {\tt thrust\_algebra} and {\tt thrust\_algebra} -- Thrust
 \end{itemize}
+
+ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+
+ \heading{Calculate an ensemble of Lorenz systems}
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef thrust::device_vector<double> state_type;
+typedef runge_kutta4<state_type,double,state_type,double,
+   thrust_algebra,thrust_operations,resizer> stepper; 
+
+state_type x( N );
+// initialize x
+integrate_const( stepper() , lorenz_ensemble() ,
+   x , 0.0 , 1000.0 , dt );
+ \end{lstlisting}
+
+\vspace{2ex}
+
+\centerline{Everything seems easy!}
+\vspace{2ex}
+\centerline{{\bf But} how does {\tt lorenz\_ensemble} look like?}
+ 
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+
+ \heading{Ensemble of Lorenz systems}
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+struct lorenz_ensemble {
+  size_t N;
+  state_type beta;
+
+  template< class State , class Deriv >
+  void operator()(
+    const State &x , Deriv &dxdt , value_type t ) const {
+  
+    thrust::for_each(
+      thrust::make_zip_iterator( thrust::make_tuple(
+        x.begin() , x.begin()+N , x.begin()+2*N ,
+        beta.begin() ,
+        dxdt.begin(), dxdt.begin()+N, dxdt.begin()+2*N
+      ) ) ,
+      thrust::make_zip_iterator( thrust::make_tuple(
+        x.begin()+N , x.begin()+2*N , x.begin()+3*N ,
+        beta.end() ,
+        dxdt.begin()+N,dxdt.begin()+2*N,dxdt.begin()+3*N
+      ) ) ,
+      lorenz_functor() );
+  }
+
+  // ...
+};
+ \end{lstlisting}
+
 
 \end{frame}
 
 
 \begin{frame}[fragile]
 
-Thrust example for Lorenz system,
+ \heading{Ensemble of Lorenz systems}
 
-Implementation of the system function 
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+struct lorenz_ensemble
+{
+  // ...
+
+  struct lorenz_functor
+  {
+    template< class T > __host__ __device__
+    void operator()( T t ) const
+    {
+      value_type R = thrust::get< 3 >( t );
+      value_type x = thrust::get< 0 >( t );
+      value_type y = thrust::get< 1 >( t );
+      value_type z = thrust::get< 2 >( t );
+      thrust::get< 4 >( t ) = sigma * ( y - x );
+      thrust::get< 5 >( t ) = R * x - y - x * z;
+      thrust::get< 6 >( t ) = -b * z + x * y ;
+    }
+  };
+};
+ \end{lstlisting}
+
 
 \end{frame}
-
-
-
 
 
 
@@ -728,42 +829,175 @@ Implementation of the system function
 
 
 \begin{frame}
- More advanced features, die themen können auch auf mehreren folien zusammengefasst werden
+ \heading{Advanced features - continued}
+
 \end{frame}
 
 
-\begin{frame}
- Boost::ref
-\end{frame}
+\begin{frame}[fragile]
+ \heading{Reference wrapper {\tt std::ref}, {\tt boost::ref}}
 
-\begin{frame}
- boost::range
-\end{frame}
+\vspace{2ex}
 
-\begin{frame}
- complex state types, vielleicht auch nicht
-\end{frame}
+ The ODE and the observers are always passed as value
 
-\begin{frame}
- arbitrary precision types
-\end{frame}
+ \begin{lstlisting}
+integrate_const{s,ode,x,0.0,1.0,dt,obs);
+s.do_step(ode,x,t,dt);
+ \end{lstlisting}
 
-\begin{frame}
- matrices as state types
-\end{frame}
+\vspace{2ex}
+Use {\tt std::ref} or {\tt boost::ref} to pass by reference
+ \begin{lstlisting}
+integrate_const{s,std::ref(ode),x,0.0,1.0,dt,
+  std::ref(obs));
+ \end{lstlisting}
 
-\begin{frame}
- graph as state types
-\end{frame}
-
-\begin{frame}
- self expanding lattices
 \end{frame}
 
 
 
+\begin{frame}[fragile]
+ \heading{Using Boost.Range}
+
+ \vspace{2ex}
+ Use Boost.Range to integrate only a part of the ODE
+
+ \vspace{2ex}
+ Example: Lyapunov exponents for the Lorenz system
+
+ $$
+  \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
+ $$
+
+ Perturbations:
+ $$ \dot{\delta x} = \sigma( \delta y - \delta x ) \quad \dot{\delta y} = R \delta x - \delta y - x \delta z - z \delta x
+   \quad \dot{\delta z} = - b \delta z + x \delta y + y \delta x $$
+
+ \begin{itemize}
+  \item Calculate transients (Initialize $x,y,z$ )
+  \item Solve whole system (state + perturbations)
+ \end{itemize}
+
+ \begin{lstlisting}
+std::vector<double> x(6,0.0);
+integrate(s,lorenz,make_pair(x.begin(),x.begin()+3),0.0,10.0,dt);
+integrate(s,lorenz_pert,x,10.0,1000.0,dt);
+ \end{lstlisting}
+
+ {\bf Ohne Formeln, eher System=Lorenz+Perturbations}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{ODEs with complex numbers}
+
+ \vspace{2ex}
+
+ Discrete Nonlinear Schr\"odinger equation
+$$
+  \ii \dot{\Psi}_k = \varepsilon_k \Psi_k + V( \Psi_{k+1}+\Psi_{k-1}) - \gamma |\Psi_k|^2 \Psi_k
+  \quad \quad \text{,} \quad \Psi_k \in \mathbb{C}
+$$
+ 
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef std::vector<std::complex<double> > state_type;
+struct dnls
+{
+  std::vector<double> eps;
+  void operator()(const state_type &x, state_type &dxdt,
+    double t) const
+  {
+    const double V=0.5 , gamma = 2.0;
+    const complex<double> I(0.0,1.0);
+
+    size_t N = x.size();
+    dxdt[0] = dxdt[N-1] = 0.0;
+    for(size_t i=1; i<N-1; ++i)
+    {
+      dxdt[i] = -I * ( eps[i]*x[i] + V*([x+1]+x[i-1])
+        - gamma*norm(x[i])*x[i] );
+    }
+  }
+};
+ \end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{Matrices as state types}
+ 
+ \vspace{2ex}
+ Example: Two-dimensional phase lattice
+
+ $$
+   \dot{\varphi}_{i,j}=f(\varphi_{i,j},\varphi_{i+1,j},\varphi_{i-1,j},\varphi_{i,j+1},\varphi_{i,j-1})
+ $$
+
+$$
+\dot{\varphi}_{i,j}=
+  \mathbf{q(\varphi_{i+1,j}-\varphi_{i,j})}+
+  q(\varphi_{i-1,j}-\varphi_{i,j})+
+  q(\varphi_{i,j+1}-\varphi_{i,j})+
+  q(\varphi_{i,j-1}-\varphi_{i,j})
+ $$
+
+Sketch of the lattice, {\tt mtl::dense2D<double>}, {\tt boost::numeric::ublas::matrix<double>}, typedef
+
+$$
+\dot{\varphi}_{i,j}=
+  q(\varphi_{i+1,j}-\varphi_{i,j})+
+  q(\varphi_{i-1,j}-\varphi_{i,j})+
+  q(\varphi_{i,j+1}-\varphi_{i,j})+
+  q(\varphi_{i,j-1}-\varphi_{i,j})
+ $$
+
+
+\centerline{\includegraphics[draft=false,width=0.27\textwidth]{phase_lattice_2d_0000.jpg} \hspace{2ex}
+\includegraphics[draft=false,width=0.27\textwidth]{phase_lattice_2d_0100.jpg} \hspace{2ex}
+\includegraphics[draft=false,width=0.27\textwidth]{phase_lattice_2d_1000.jpg}}
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{Compile-time sequences and Boost.Units}
+
+ $$
+ \left( \begin{array}{c} \dot{x} \\ \dot{v} \end{array} \right) 
+= \left( \begin{array}{l} v \\ f(x,v) \end{array} \right)
+$$
+ \begin{itemize}
+  \item $x$ -- length, dimension $m$
+  \item $v$ -- velocity, dimension $m s^{-1}$
+  \item $a$ -- acceleration, dimension $m s^{-2}$
+ \end{itemize}
+
+ \begin{lstlisting}[basicstyle=\tiny\ttfamily]
+typedef units::quantity< si::time , double > time_type;
+typedef units::quantity< si::length , double > length_type;
+typedef units::quantity< si::velocity , double > velocity_type;
+typedef units::quantity< si::acceleration , double > acceleration_type;
+
+typedef fusion::vector< length_type , velocity_type > state_type;
+typedef fusion::vector< velocity_type , acceleration_type > deriv_type;
+
+typedef runge_kutta_dopri5< state_type , double , deriv_type , time_type , fusion_algebra > stepper_type;
+ \end{lstlisting}
+
+ 
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{What else}
+
+ \begin{itemize}
+  \item ODEs on graphs (Grafik einfuegen, eventuell aus PHD talk)
+  \item Automatic memory management - self expanding lattices (Grafik einfuegen)
+  \item Arbitrary precision types (John Maddocks multiprecision)
+ \end{itemize}
 
 
 
-
-
+\end{frame}
