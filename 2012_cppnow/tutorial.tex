@@ -191,7 +191,7 @@ t += dt;
 
 \vspace{2ex}
 
-$x(0) \mapsto x(\Delta t)$
+\centerline{$x(0) \mapsto x(\Delta t)$}
 
 \end{frame}
 
@@ -211,12 +211,15 @@ for( size_t i=0 ; i<10 ; ++i )
 }
 \end{lstlisting}
 
-\vspace{2ex}
+\vspace{1ex}
 
-$x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta) \mapsto \dots$
+\centerline{$x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta t) \mapsto \dots$}
 
-Grafik einfuegen
+\vspace{1ex}
 
+\centerline{\includegraphics[draft=false,width=0.48\textwidth]{stepper_temporal_evolution.pdf}
+\hspace{1ex}
+\includegraphics[draft=false,width=0.48\textwidth]{stepper_phase_space.pdf}}
 \end{frame}
 
 
@@ -268,9 +271,18 @@ rosenbrock4< double > s;
 \end{frame}
 
 \begin{frame}
+ 
  \heading{Controlled steppers -- Step size control}
 
- insert graphic
+ \only<1>{
+\centerline{\includegraphics[draft=false,width=0.8\textwidth]{controlled_stepper1.pdf}}
+ }
+ \only<2>{
+\centerline{\includegraphics[draft=false,width=0.8\textwidth]{controlled_stepper2.pdf}}
+ }
+
+ Add legend to the plots!
+ 
 
  
 \end{frame}
