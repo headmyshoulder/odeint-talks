@@ -27,3 +27,4 @@ exe harmonic_oscillator : harmonic_oscillator.cpp ;
 exe nonlinear_pendulum : nonlinear_pendulum.cpp ;
 exe phase_compacton_lattice : phase_compacton_lattice.cpp ;
 exe dissipative_phase_lattice : dissipative_phase_lattice.cpp ;
+exe vdp : vdp.cpp ;

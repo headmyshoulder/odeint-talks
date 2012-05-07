@@ -174,7 +174,7 @@ struct pendulum
  \centerline{ \Large Let's solve the pendulum example numerically}
 
 \vspace{2ex}
-$\varphi(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = 0$
+$\varphi(0) = x_1(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = x_2(0) = 0$
 \vspace{2ex}
 
 \begin{lstlisting}
@@ -281,8 +281,6 @@ rosenbrock4< double > s;
 \centerline{\includegraphics[draft=false,width=0.8\textwidth]{controlled_stepper2.pdf}}
  }
 
- Add legend to the plots!
- 
 
  
 \end{frame}
@@ -374,11 +372,22 @@ More integrate versions:
 
 \begin{frame}[fragile]
 
+\heading{Adaptive step size vs. constant step size}
+
+\vspace{2ex}
+
 \begin{lstlisting}
 integrate_const(s,ode,x,t,dt,obs);
 \end{lstlisting}
 
-Grafik with problem and solution
+Performance loss when constant step size integration is needed
+
+\pause
+
+\vspace{2ex}
+
+\centerline{\includegraphics[draft=false,width=0.7\textwidth]{vdp_dense_output.pdf}}
+
 
 \end{frame}
 
@@ -386,9 +395,11 @@ Grafik with problem and solution
 
 \begin{frame}[fragile]
 
-\heading{Dense output}
+\heading{Dense output stepper}
 
 \vspace{2ex}
+
+Problem: Adaptive step size vs. constant step size integration 
  
 \begin{lstlisting}
 auto s = make_dense_output( 1.0e-6 , 1.0e-6 ,
@@ -396,9 +407,11 @@ auto s = make_dense_output( 1.0e-6 , 1.0e-6 ,
 integrate_const( s , p , x , t , dt );
 \end{lstlisting}
 
-Interpolation between two steps with same precision as the original stepper!
+Interpolation between two steps with the same precision as the stepper!
 
-Grafik!
+\vspace{2ex}
+
+\centerline{\includegraphics[draft=false,width=0.6\textwidth]{vdp_dense_output.pdf}}
 
 \end{frame}
 
@@ -442,14 +455,14 @@ Grafik!
  \begin{itemize}
   \item Very easy example -- harmonic oscillator
   \item Basic features of odeint
-  \item Different stepper -- Controlled steppers, Dense output steppers
+  \item Different steppers -- Steppers, Error steppers, Controlled steppers, Dense output steppers
   \item Integrate functions
  \end{itemize}
 
  \vspace{2ex}
 
  \pause
- \centerline{\bf Now, lets look at the advanced features!}
+ \centerline{\bf Now, lets look at some advanced features!}
 
 \end{frame}
 
@@ -457,18 +470,23 @@ Grafik!
 
 \begin{frame}
  
-\heading{Extended systems}
+\heading{Large systems}
 
 \vspace{2ex}
 
 \begin{minipage}{0.48\textwidth} \begin{center}
   Lattice systems
 
-  %\includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
+  \vspace{3ex}
+
+  \includegraphics[draft=false,width=0.8\textwidth]{lattices.jpg}
 \end{center} \end{minipage}
 \pause
 \begin{minipage}{0.48\textwidth} \begin{center}
   Discretiztations of PDEs
+
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.7\textwidth]{turbulence.jpg}
 \end{center} \end{minipage}
 
 \pause
@@ -477,13 +495,13 @@ Grafik!
 \begin{minipage}{0.48\textwidth}\begin{center}
   Granular systems
 
-  \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
+  \includegraphics[draft=false,width=0.75\textwidth]{granular_system.png}
  \end{center} \end{minipage}
 \pause
 \begin{minipage}{0.48\textwidth}\begin{center}
   ODEs on graphs
 
-  \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
+  \includegraphics[draft=false,width=0.7\textwidth]{neuron.jpg}
  \end{center}\end{minipage}
 
  \vspace{2ex}
@@ -494,7 +512,7 @@ Grafik!
 
 
 \begin{frame}[fragile]
- \heading{Phase oscillator lattices}
+ \heading{Coupled phase oscillators}
 
  \vspace{2ex}
 
@@ -503,28 +521,38 @@ Grafik!
    \includegraphics[draft=false,width=1.0\textwidth]{vdp.pdf}  
   \end{column}
   \begin{column}{0.63\textwidth}
- Any oscillator can be described by one variable, its phase.
+ Any oscillator can be described by one variable -- its phase!
 
- 
+ \vspace{2ex}
 
- Trivial dynamics: $\dot{\varphi}=\omega \varphi$
+ Trivial dynamic: $\dot{\varphi}=\omega$
 
- Coupled phase oscillators
-
- Neurosciences
-
- Heart dynamics
-
- Synchronization
-
- Any weakly perturbed oscillator system
-
- $\dot{\varphi}_k = \omega_k \varphi_k + q( \varphi_{k+1} , \varphi_k ) + q( \varphi_k , \varphi_{k-1} )$
-
-   
   \end{column}
  \end{columns}
 
+ \pause
+
+
+ \vspace{2ex}
+
+ Interesting behaviour occurs if oscillators are coupled.
+
+ \begin{itemize}
+  \item Synchronization, oscillation death, phase chaos, pattern formation, \dots
+ \end{itemize}
+
+ Applications: Neurosciences, Heart dynamics, social systems
+
+ \vspace{2ex}
+
+ Any weakly coupled oscillator system
+
+ \vspace{1ex}
+
+ \centerline{$\dot{\varphi}_k = \omega_k + q( \varphi_{k+1} , \varphi_k ) + q( \varphi_k , \varphi_{k-1} )$}
+
+   
+ 
 \end{frame}
 
 
@@ -546,11 +574,31 @@ Grafik!
 typedef std::vector<double> state_type;
  \end{lstlisting}
 
+ \vspace{2ex}
+
  Animation
 
- Space-time plot for visualization of compactons and chaos
-
 \end{frame}
+
+\begin{frame}[fragile]
+
+ \heading{Phase compacton lattice -- Transition to chaos}
+
+ \vspace{2ex}
+
+\centerline{\begin{sideways}\hspace{3ex}index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_1.jpg}}
+
+\centerline{time}
+
+
+\vspace{4ex}
+\centerline{\begin{sideways}\hspace{3ex}index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_2.jpg}}
+
+\centerline{time}
+ 
+\end{frame}
+
+
 
 
 
@@ -558,7 +606,7 @@ typedef std::vector<double> state_type;
 
 \begin{frame}[fragile]
 
- \heading{Ensemble of phase oscillators}
+ \heading{Ensemble of phase oscillators -- SKIP}
 
  \vspace{2ex}
 
@@ -576,7 +624,7 @@ Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
 \begin{frame}[fragile]
 
-\heading{Ensemble of phase oscillators}
+\heading{Ensemble of phase oscillators -- SKIP}
 
 \begin{lstlisting}
 typedef std::vector<double> state_type;
@@ -851,12 +899,14 @@ struct lorenz_ensemble
 
 \vspace{2ex}
 
- The ODE and the observers are always passed as value
+ The ODE and the observers are always passed by value
 
  \begin{lstlisting}
 integrate_const{s,ode,x,0.0,1.0,dt,obs);
 s.do_step(ode,x,t,dt);
  \end{lstlisting}
+
+\pause
 
 \vspace{2ex}
 Use {\tt std::ref} or {\tt boost::ref} to pass by reference
@@ -873,23 +923,22 @@ integrate_const{s,std::ref(ode),x,0.0,1.0,dt,
  \heading{Using Boost.Range}
 
  \vspace{2ex}
- Use Boost.Range to integrate only a part of the ODE
+ Use Boost.Range to integrate separate parts of the overall state
 
  \vspace{2ex}
  Example: Lyapunov exponents for the Lorenz system
 
- $$
-  \dot{x} = \sigma ( y - x ) \quad \quad \dot{y} = R x - y - x z \quad \quad \dot{z} = -b z + x y
- $$
+ \vspace{2ex}
 
- Perturbations:
- $$ \dot{\delta x} = \sigma( \delta y - \delta x ) \quad \dot{\delta y} = R \delta x - \delta y - x \delta z - z \delta x
-   \quad \dot{\delta z} = - b \delta z + x \delta y + y \delta x $$
+ \centerline{\bf Complete ODE = Lorenz system + Perturbation}
+
 
  \begin{itemize}
-  \item Calculate transients (Initialize $x,y,z$ )
+  \item Calculate transients by solving only the Lorenz system (initialize $x,y,z$)
   \item Solve whole system (state + perturbations)
  \end{itemize}
+
+\vspace{2ex}
 
  \begin{lstlisting}
 std::vector<double> x(6,0.0);
@@ -897,9 +946,11 @@ integrate(s,lorenz,make_pair(x.begin(),x.begin()+3),0.0,10.0,dt);
 integrate(s,lorenz_pert,x,10.0,1000.0,dt);
  \end{lstlisting}
 
- {\bf Ohne Formeln, eher System=Lorenz+Perturbations}
+
 
 \end{frame}
+
+
 
 \begin{frame}[fragile]
  \heading{ODEs with complex numbers}
@@ -939,31 +990,36 @@ struct dnls
 
 \begin{frame}[fragile]
  \heading{Matrices as state types}
- 
- \vspace{2ex}
- Example: Two-dimensional phase lattice
 
- $$
-   \dot{\varphi}_{i,j}=f(\varphi_{i,j},\varphi_{i+1,j},\varphi_{i-1,j},\varphi_{i,j+1},\varphi_{i,j-1})
- $$
+ \vspace{1ex}
+ \begin{columns}[T]
+  \begin{column}{0.4\textwidth}
+   \centerline{\includegraphics[draft=false,width=0.9\textwidth]{2dlattice.pdf}}
+  \end{column}
+  \begin{column}{0.58\textwidth}
+Example: 
 
-$$
-\dot{\varphi}_{i,j}=
-  \mathbf{q(\varphi_{i+1,j}-\varphi_{i,j})}+
-  q(\varphi_{i-1,j}-\varphi_{i,j})+
-  q(\varphi_{i,j+1}-\varphi_{i,j})+
-  q(\varphi_{i,j-1}-\varphi_{i,j})
- $$
+\vspace{1ex}
+Two-dimensional phase lattice
+\begin{align*}
+\dot{\varphi}_{i,j} = &
+  q(\varphi_{i+1,j},\varphi_{i,j}) 
+ + q(\varphi_{i-1,j},\varphi_{i,j}) \\
+ + & q(\varphi_{i,j+1},\varphi_{i,j}) 
+ + q(\varphi_{i,j-1},\varphi_{i,j})
+ \end{align*}
+  \end{column}
+ \end{columns}
 
-Sketch of the lattice, {\tt mtl::dense2D<double>}, {\tt boost::numeric::ublas::matrix<double>}, typedef
+\vspace{2ex}
 
-$$
-\dot{\varphi}_{i,j}=
-  q(\varphi_{i+1,j}-\varphi_{i,j})+
-  q(\varphi_{i-1,j}-\varphi_{i,j})+
-  q(\varphi_{i,j+1}-\varphi_{i,j})+
-  q(\varphi_{i,j-1}-\varphi_{i,j})
- $$
+\begin{lstlisting}
+ typedef ublas::matrix<double> state_type1;
+ typedef mtl::dense2D<double> state_type2;
+\end{lstlisting}
+
+\pause
+\vspace{1ex}
 
 
 \centerline{\includegraphics[draft=false,width=0.27\textwidth]{phase_lattice_2d_0000.jpg} \hspace{2ex}
@@ -1004,11 +1060,31 @@ typedef runge_kutta_dopri5< state_type , double , deriv_type , time_type , fusio
 \begin{frame}[fragile]
  \heading{What else}
 
- \begin{itemize}
-  \item ODEs on graphs (Grafik einfuegen, eventuell aus PHD talk)
-  \item Automatic memory management - self expanding lattices (Grafik einfuegen)
-  \item Arbitrary precision types (John Maddocks multiprecision)
- \end{itemize}
+
+\vspace{2ex}
+
+\begin{minipage}[c]{0.35\textwidth}
+\begin{itemize}\item ODEs on graphs\end{itemize}
+\end{minipage} \hspace{1ex}
+\begin{minipage}[c]{0.6\textwidth}
+\includegraphics[draft=false,width=0.5\textwidth]{graph.jpg}
+\end{minipage}
+\pause
+
+\vspace{2ex}
+\begin{minipage}[c]{0.35\textwidth}
+\begin{itemize}\item Automatic memory management\end{itemize}
+\end{minipage} \hspace{1ex}
+\begin{minipage}[c]{0.6\textwidth}
+\includegraphics[draft=false,width=0.9\textwidth]{self_expanding_lattice.pdf}
+
+\vspace{0.5ex}
+{\scriptsize Enlarge the state when waves hit the boundary}
+\end{minipage}
+\pause
+
+\vspace{2ex}
+\begin{itemize}\item Arbitrary precision types, GMPXX\end{itemize}
 
 
 
