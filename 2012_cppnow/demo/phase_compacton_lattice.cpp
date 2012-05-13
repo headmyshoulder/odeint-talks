@@ -10,7 +10,6 @@
 #include <cmath>
 
 #include <boost/numeric/odeint.hpp>
-#include <boost/phoenix.hpp>
 
 namespace odeint = boost::numeric::odeint;
 

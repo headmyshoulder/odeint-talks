@@ -6,6 +6,15 @@
 \end{frame}
 
 \begin{frame}
+ \heading{Structure of \odeint}
+ 
+ \vspace{2ex}
+ \centerline{\includegraphics[draft=false,width=1.0\textwidth]{odeint_components.png}}
+
+\end{frame}
+
+
+\begin{frame}
 \heading{Independent Algorithms}
 \note{To achive maximum flexibility we wanted to implement the numerical algorithms independent from state type and computation details}
 
@@ -338,9 +347,9 @@ This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
 struct range_algebra {
 ...
  template< class S1 , class S2 , class S3 , class Op >
- static void for_each2( S1 &s1, S2 &s2, S3 &s3, Op op )
+ static void for_each3( S1 &s1, S2 &s2, S3 &s3, Op op )
  {
-   detail::for_each2( boost::begin(s1), boost::end(s1),
+   detail::for_each3( boost::begin(s1), boost::end(s1),
                       boost::begin(s2), boost::begin(s3), 
                       op );
  }
@@ -350,7 +359,7 @@ struct range_algebra {
 namespace detail {
 ...
  template< class Iter1, class Iter2, Iter3, class Op >
- void for_each2( Iter1 first1, Iter1 last1, 
+ void for_each3( Iter1 first1, Iter1 last1, 
                  Iter2 first2, Iter3 first3, Op op )
  {
      for( ; first1 != last1 ; )
