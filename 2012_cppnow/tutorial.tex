@@ -225,6 +225,7 @@ for( size_t i=0 ; i<10 ; ++i )
 \end{frame}
 
 
+\rem{
 \begin{frame}[fragile]
  \heading{Simulation}
 
@@ -254,6 +255,50 @@ for( size_t i=0 ; i<10 ; ++i )
 
 
 \end{frame}
+}
+
+
+
+
+
+\begin{frame}[fragile]
+ \heading{Simulation}
+
+ \vspace{2ex}
+
+\begin{minipage}[t]{0.5\textwidth}
+\vspace{0pt}
+Oscillator
+
+\vspace{1ex}
+$\mu=0 \, \text{,} \,\, \omega_E = 0 \, \text{,} \,\, \varepsilon=0$
+
+\vspace{7ex}
+Damped oscillator:
+
+\vspace{1ex}
+$\mu=0.1  \, \text{,} \,\, \omega_E = 0  \, \text{,} \,\, \varepsilon=0$
+
+\vspace{7ex}
+Damped, driven oscillator:
+
+\vspace{1ex}
+$\mu=0.1  \, \text{,} \,\, \omega_E = 1.05  \, \text{,} \,\, \varepsilon=1.5$
+\end{minipage}\pause
+\begin{minipage}[t]{0.49\textwidth}
+\vspace{0pt}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{undamped.pdf}}
+
+\vspace{2.5ex}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{damped.pdf}}
+
+\vspace{2.5ex}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{damped_driven.pdf}}
+\end{minipage}
+
+\end{frame}
+
+
 
 
 
@@ -859,6 +904,14 @@ integrate_const( stepper() , lorenz_ensemble() ,
 
 \vspace{2ex}
 
+\centerline{Memory layout:}
+
+\vspace{1ex}
+
+\centerline{\includegraphics[draft=false,width=0.9\textwidth]{memory_layout.pdf}}
+
+\vspace{6ex}
+
 \centerline{Everything seems easy!}
 \vspace{2ex}
 \centerline{{\bf But} how does {\tt lorenz\_ensemble} look like?}
@@ -933,6 +986,18 @@ struct lorenz_ensemble
 
 \end{frame}
 
+
+
+
+\begin{frame}[fragile]
+
+ \heading{Lorenz system parameter study -- Results}
+
+ \vspace{4ex}
+
+\centerline{\includegraphics[draft=false,width=0.8\textwidth]{lyap_lorenz.pdf}}
+
+\end{frame}
 
 
 

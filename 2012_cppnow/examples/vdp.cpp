@@ -51,17 +51,17 @@ int main( int argc , char **argv )
 	ofstream fout1( "vdp_constant.dat" );
 	ofstream fout2( "vdp_adaptive.dat" );
 
-	integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) ,
+	integrate_const( make_dense_output( 1.0e-3 , 1.0e-3 , runge_kutta_dopri5< state_type >() ) ,
 	            vdp() , x , 0.0 , 102.0 , 0.1 );
 
 	state_type y = x;
-    integrate_const( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) ,
+    integrate_const( make_dense_output( 1.0e-4 , 1.0e-4 , runge_kutta_dopri5< state_type >() ) ,
             vdp() , x , 0.0 , 10.0 , 0.1 , writer( fout1 ) );
 
 
     x = {{ 1.0 , 1.0 }};
 
-    integrate_adaptive( make_dense_output( 1.0e-6 , 1.0e-6 , runge_kutta_dopri5< state_type >() ) ,
+    integrate_adaptive( make_dense_output( 1.0e-4 , 1.0e-4 , runge_kutta_dopri5< state_type >() ) ,
                 vdp() , y , 0.0 , 10.0 , 0.1 , writer( fout2 ) );
 
     return 0;
