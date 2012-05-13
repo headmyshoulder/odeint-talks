@@ -195,6 +195,40 @@ For anything that does not support \lstinline+boost::size+ and/or \lstinline+res
 
 
 \begin{frame}[fragile]
+ \heading{Tell odeint when to resize}
+\vspace{2ex}
+
+\begin{lstlisting}
+typedef initially_resizer resizer; //default
+\end{lstlisting}
+Resizing only at first step (memory allocation)
+
+\vspace{1ex}
+\begin{lstlisting}
+typedef always_resizer resizer;
+\end{lstlisting}
+Resizing at every step (expanding lattice)
+
+\vspace{1ex}
+\begin{lstlisting}
+typedef never_resizer resizer;
+\end{lstlisting}
+Resizing manually by the user (\lstinline+stepper.adjust_size+)
+
+\vspace{2ex}
+\begin{lstlisting}
+typedef runge_kutta4< state_type , value_type , 
+    deriv_type , time_type , algebra , 
+    operations , resizer > stepper_type; 
+\end{lstlisting}
+
+
+\end{frame}
+
+
+
+\rem{
+\begin{frame}[fragile]
  \heading{Scalar Computations}
 
 For the scalar types we require the following:
@@ -215,7 +249,7 @@ Valid Expressions:
 \end{itemize}
 
 \end{frame}
-
+}
 
 \begin{frame}[fragile]
  \heading{Vector Computations}
@@ -433,6 +467,7 @@ struct vector_space_algebra {
 \begin{description}
  \item[fusion\_algebra:] works with compile-time sequences like \lstinline+fusion::vector+ of Boost.Units
  \item[thrust\_algebra \& thrust\_operations:] Use thrust library to perform computation on CUDA graphic cards
+ \item[mkl\_operations:] Use Intel's Math Kernel Library
  %\item[nested\_algebra:] can handle nested containers that support Boost.Range, e.g.\ \lstinline+vector< vector<double> >+
 \end{description}
 
@@ -445,3 +480,18 @@ See tutorial and documentation on \verb+www.odeint.com+ for more.
 \end{block}
 
 \end{frame}
+
+\begin{frame}
+ \heading{More details}
+
+\vspace{2ex}
+\begin{itemize}
+ \item State wrapper for construction/destruction of state types
+ \item More requirements on Algebras when using controlled steppers (\lstinline+algebra.reduce+)
+ \item Implicit routines using Ublas
+ \item Generation functions to create controlled / dense output steppers
+ \item TMP Runge-Kutta implementation (see my talk on Thursday afternoon!)
+\end{itemize}
+
+\end{frame}
+
