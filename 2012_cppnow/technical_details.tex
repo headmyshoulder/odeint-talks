@@ -18,7 +18,7 @@
 \end{block}
  
 \begin{block}{Approach}
- Detatch the algorithm from memory management and computation detail and make each part interchangeable.
+ Detatch the algorithm from memory management and computation details and make each part interchangeable.
 \end{block}
 
 \end{frame}
@@ -26,11 +26,11 @@
 \begin{frame}
 \heading{Mathematical Algorithm}
 
- Typical mathematical computation to calculate the solution of an ODE ($\dot{\vec x} = \vec f(\vec x , t)$):
+ Typical mathematical computation performed to calculate the solution of an ODE ($\dot{\vec x} = \vec f(\vec x , t)$):
 
 \begin{align*}
  \vec F_1 &= \vec f( \vec x_0 , t_0 ) \\
- \vec x' &= \vec x_0 + a_{21} \cdot \Delta t \cdot \vec F_1 \\
+ \vec x' &= \vec x_0 + a_{21} \cdot \Delta t \cdot \vec F_1 \\ \\
  \vec F_2 &= \vec f( \vec x' , t_0 + c_1\cdot\Delta t ) \\
  \vec x' &= \vec x_0 + a_{31} \cdot \Delta t \cdot \vec F_1 + a_{32} \cdot \Delta t \cdot \vec F_2 \\
          &\vdots \\
@@ -48,9 +48,9 @@
  
 Types:
 \begin{itemize}
- \item {\color{red} vector type}, mostly, but not neccessarily, some container like \lstinline+vector<double>+ {\scriptsize (actually we have \lstinline+state_type+ and \lstinline+deriv_type+)}
- \item {\color{blue} time type}, usually \lstinline+double+, but might be a multi-precision type
- \item {\color{dark-green} value type}, most likely the same as time type
+ \item {\color{red} vector type}, mostly, but not neccessarily, some container like \texttt{vector<double>} {\scriptsize (actually we have \texttt{state\_type} and \texttt{deriv\_type})}
+ \item {\color{blue} time type}, usually \texttt{double}
+ \item {\color{dark-green} value type}, fundamental arithmetic type
 \end{itemize}
 \pause
 \vspace{0.5em}
@@ -63,7 +63,7 @@ void rhs( const vector_type &x , vector_type &dxdt , const time_type t )
 rhs( x0 , F1 , t ); //memory allocation for F1?
 \end{lstlisting}
 \begin{itemize}
- \item Memory allocation for temporary results (\lstinline+F+, \lstinline+x'+)
+ \item Memory allocation for temporary results (\lstinline+F1+, \lstinline+x'+)
 \end{itemize}
 
 \end{frame}
@@ -80,7 +80,8 @@ rhs( x0 , F1 , t ); //memory allocation for F1?
  \item scalar-scalar multiplication
  \item scalar-vector multiplication
 \end{itemize}
-\centerline{\small ($\longrightarrow$ vector space)}
+\vspace{2ex}
+\centerline{\small $\longrightarrow$ vector space}
 
 \end{frame}
 
@@ -126,7 +127,7 @@ Two possible situations: dynamic size / fixed size \lstinline+vector_type+
     \item e.g. \lstinline+vector<double>+
     \item declare type as resizeable
     \item specialize resize template
-    \item use \lstinline+initially_resizer+ or \lstinline+always_resizer+ in stepper algorithm
+    \item use \lstinline+initially_resizer+, \lstinline+always_resizer+, or \lstinline+never_resizer+ in stepper
    \end{itemize}
   \end{block}
  \end{column}
@@ -188,7 +189,7 @@ struct resize_impl
 };
 \end{lstlisting}
 
-For anything that does not support \lstinline+boost::size+ or \lstinline+resize+ the user must provide a specialization.
+For anything that does not support \lstinline+boost::size+ and/or \lstinline+resize+ the user must provide a specialization.
 
 \end{frame}
 
@@ -207,8 +208,7 @@ value_type a1 , a2 , c;
 Valid Expressions:
 \begin{itemize}
  \item \lstinline+a1 = static_cast< value_type >(1)+
- \item \lstinline+a1*a2+
- \item \lstinline+a1/a2+
+ \item \lstinline+a1*a2+, \lstinline+a1/a2+, \lstinline!a1+a2!, \lstinline+a1-a2+, \lstinline+-a1+ 
  \item \lstinline!t + c*dt!
  \item \lstinline!t + dt/c!
  \item \lstinline!t += dt!
@@ -220,7 +220,7 @@ Valid Expressions:
 \begin{frame}[fragile]
  \heading{Vector Computations}
 
-Remember: $\vec x_1 = \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s$
+\centerline{$\vec x_1 = \vec x_0 + b_1\cdot \Delta t \cdot \vec F_1 + \dots + b_s\cdot \Delta t \cdot \vec F_s$}
 
 \vspace{0.5em}
 
@@ -233,13 +233,13 @@ Split into two parts:
 
 \vspace{0.5em}
 
-Very similar to \lstinline+std::for_each+, \odeint\ uses something like:
+Similar to \lstinline+std::for_each+
 
 \begin{lstlisting}
 Algebra algebra;
 
 algebra.for_each3( x1 , x0 , F1 ,
-    Operations::scale_sum3( 1.0, b1*dt );
+    Operations::scale_sum2( 1.0, b1*dt );
 \end{lstlisting}
 \pause
 
@@ -251,7 +251,6 @@ The types \lstinline+Algebra+ and \lstinline+Operations+ are template parameters
  \heading{Vector Computations}
 
 \begin{lstlisting}
-time_type dt;
 state_type x1, x2, ...
 algebra_type algebra;
 \end{lstlisting}
@@ -290,8 +289,8 @@ These classes need a constructor and \lstinline+()+-operator that works together
 \begin{lstlisting}
 value_type b1, b2;
 time_type dt;
-algebra.for_each4( x1 , x0 , F1 ,
-   Operations::scale_sum3( 1.0, b1*dt );
+algebra.for_each3( x1 , x0 , F1 ,
+   Operations::scale_sum2( 1.0, b1*dt );
 \end{lstlisting}
 
 This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
@@ -301,7 +300,7 @@ This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
 \begin{frame}[fragile]
  \heading{Example Implementation: \lstinline+range_algebra+ }
 
-\begin{lstlisting}[basicstyle=\scriptsize]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 struct range_algebra {
 ...
  template< class S1 , class S2 , class S3 , class Op >
@@ -339,7 +338,7 @@ struct scale_sum2
   const Fac1 m_alpha1;
   const Fac2 m_alpha2;
 
-  scale_sum2( Fac1 &alpha1 , Fac2 &alpha2 ) 
+  scale_sum2( Fac1 alpha1 , Fac2 alpha2 ) 
     : m_alpha1( alpha1 ) , m_alpha2( alpha2 ) 
   { }
 
@@ -355,20 +354,23 @@ struct scale_sum2
 
 \begin{frame}[fragile]
 
-\lstinline+range_algebra & default_operations+ can be used with any Container that supports Boost.Range and whose \lstinline+container::value_type+ supports operators \lstinline!+,*!.
+%\lstinline+range_algebra & default_operations+ can be used with any Container that supports Boost.Range and whose \lstinline+container::value_type+ supports operators \lstinline!+,*!.
 
 For example \lstinline+vector< double >+:
 \begin{lstlisting}
 typedef vector< double > state_type;
+typedef vector< double > deriv_type;
 typedef double value_type;
 typedef double time_type;
 
 typedef runge_kutta4< state_type , value_type , 
-                      state_type , time_type , 
+                      deriv_type , time_type , 
                       range_algebra , 
                       default_operations 
                     > stepper_type
 \end{lstlisting}
+
+\vspace{1em}
 As these are also the default values, this can be shortened:
 \begin{lstlisting}
 typedef runge_kutta4<state_type> stepper_type; 
@@ -390,7 +392,7 @@ typedef runge_kutta4<state_type> stepper_type;
 What about
 \begin{itemize}
  \item Ublas \lstinline+vector+
- \item trivial \lstinline+state_type+s like \lstinline+double+
+ \item trivial \lstinline+state_type+ like \lstinline+double+
  \item generally: \lstinline+state_type+ that support operators \lstinline!+,*!
 \end{itemize}
 
@@ -417,7 +419,7 @@ struct vector_space_algebra {
 \end{lstlisting}
 
 \begin{itemize}
- \item delegates operations directly to the \lstinline+state_type+
+ \item delegates \lstinline+state_type+ directly to the operations 
  \item no iteration
  \item works together with \lstinline+default_operations+ with any \lstinline+state_type+ that supports operators \lstinline!+,*!
 \end{itemize}
@@ -429,9 +431,9 @@ struct vector_space_algebra {
  \heading{Other Examples}
 
 \begin{description}
- \item[fusion\_algebra:] works with \lstinline+fusion::vector+ as \lstinline+state_type+, (e.g.\ Boost.Units)
+ \item[fusion\_algebra:] works with compile-time sequences like \lstinline+fusion::vector+ of Boost.Units
  \item[thrust\_algebra \& thrust\_operations:] Use thrust library to perform computation on CUDA graphic cards
- \item[nested\_algebra:] can handle nested containers that support Boost.Range, e.g.\ \lstinline+vector< vector<double> >+
+ %\item[nested\_algebra:] can handle nested containers that support Boost.Range, e.g.\ \lstinline+vector< vector<double> >+
 \end{description}
 
 See tutorial and documentation on \verb+www.odeint.com+ for more.
@@ -439,7 +441,7 @@ See tutorial and documentation on \verb+www.odeint.com+ for more.
 \pause
 \vspace{0.5em}
 \begin{block}{Important}
- Division into Algebra and Operations gives us great flexibility. However, State\_Type, Algebra and Operations must coorporate to make \odeint\ work!
+ Division into Algebra and Operations gives us great flexibility. However, state type, algebra and operations must coorporate to make \odeint\ work!
 \end{block}
 
 \end{frame}

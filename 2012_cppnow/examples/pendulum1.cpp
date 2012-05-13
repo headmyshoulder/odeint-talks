@@ -32,25 +32,25 @@ struct pendulum
 int main( int argc , char **argv )
 {
     odeint::runge_kutta4< state_type > rk4;
-    pendulum p( 0.0 , 0.0 , 0.0 );
+
+    // 0.0 , 0.0 , 0.0
+    // 0.1 , 0.0 , 0.0
+    // 0.1 , 1.05 , 1.5
+    pendulum p( 0.1 , 1.05 , 1.5 );
 
     state_type x = {{ 1.0 , 0.0 }};
     double t = 0.0;
     const double dt = 0.025;
 
-    std::cout << "unset key" << "\n";
-    std::cout << "set size square" << std::endl;
-
-    for( size_t i=0 ; i<1000 ; ++i )
+    for( size_t i=0 ; i<100000 ; ++i )
     {
-        std::cout << "p [-1.1:1.1][-1.1:1.1]  '-' w lp pt 7 ps 2 lw 3" << std::endl;
-        std::cout << "0.0 0.0" << "\n";
-        std::cout << -sin(x[0]) << " " << -cos(x[0]) << "\n";
-        std::cout << "e" << std::endl;
+        std::cout << t << "\t" << x[0] << "\t" << x[1] << "\n";
 
         rk4.do_step( p , x , t , dt );
         t += dt;
     }
+
+    return -1;
 
     {
         odeint::runge_kutta_fehlberg78< state_type > stepper;

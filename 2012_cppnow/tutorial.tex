@@ -3,7 +3,7 @@
 
 
 \begin{frame}
-  \heading{Lets step into odeint}
+  \heading{Let's step into \odeint}
   \tableofcontents[currentsection] 
 \end{frame}
 
@@ -27,7 +27,7 @@
 
  \vspace{2ex}
 
- Acceleration:  $a = l \ddot{\varphi}$
+ Acceleration:  $a = l \ddot{\varphi} = \frac{\de^2 \varphi}{\de t^2} $
 
  \vspace{2ex}
 
@@ -149,7 +149,7 @@ typedef std::array<double,2> state_type;
 
 \vspace{2ex}
 
-$\dot{x_1} = x_2$, $\dot{x_2} = - \omega_0^2 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$
+$\dot{x_1} = x_2$, $\dot{x_2} = - \omega_0^2 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$ \hspace{6ex} $\omega_0^2 = 1$
 
 \vspace{2ex}
 
@@ -180,7 +180,7 @@ $\varphi(0) = x_1(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = x_2(0) = 0$
 \vspace{2ex}
 
 \begin{lstlisting}
-odeint::rk4< state_type > rk4;
+odeint::runge_kutta4< state_type > rk4;
 pendulum p( 0.1 , 1.05 , 1.5 );
 
 state_type x = {{ 1.0 , 0.0 }};
@@ -228,19 +228,38 @@ for( size_t i=0 ; i<10 ; ++i )
 \begin{frame}[fragile]
  \heading{Simulation}
 
- \vspace{4ex}
+ \vspace{1ex}
 
  \centerline{Oscillator: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
- \vspace{2ex}
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{undamped.pdf}}
+
+% \vspace{1ex}
  
 \centerline{Damped oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
- \vspace{2ex}
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{damped.pdf}}
+
+% \vspace{1ex}
 
  \centerline{Damped, driven oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
+
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{damped_driven.pdf}}
+
+
 \end{frame}
 
+
+
+
+
+\rem{
 \begin{frame}[fragile]
 
   \heading{Different Steppers}
@@ -271,6 +290,12 @@ rosenbrock4< double > s;
   {\bf These steppers perform one step with constant step size!}
 
 \end{frame}
+}
+
+
+
+
+
 
 \begin{frame}
  
@@ -296,15 +321,17 @@ rosenbrock4< double > s;
  \vspace{2ex}
 
  \begin{lstlisting}
-auto s = make_controlled(1.0e-6,1.0e6,
+auto s = make_controlled( 1.0e-6 , 1.0e6,
   runge_kutta_fehlberg78<state_type>() );
-controlled_step_result r = 
+
+controlled_step_result res = 
   s.try_step(ode,x,t,dt);
  \end{lstlisting}
 
  Tries to perform the step and updates $x$, $t$, and $dt$!
 
  \vspace{4ex}
+
 
  It works because Runge-Kutta-Fehlberg has error estimation:
 
@@ -328,12 +355,12 @@ auto s = make_controlled(1.0e-6,1.0e6,
   runge_kutta_fehlberg78<state_type>() );
 while( t < t_end )
 {
-  controlled_step_result res
-    = s.try_step(ode,x,t,dt);
-  while( res != success )
-  {
+  controlled_step_result res;
+  do
+  { 
     res = s.try_step(ode,x,t,dt);
   }
+  while( res != success )
 }
 \end{lstlisting}
 
@@ -360,7 +387,7 @@ Observer: Callable object {\tt obs(x,t)}
 Example (using Boost.Phoenix):
 \begin{lstlisting}
 integrate_adaptive(s,ode,x,t_start,t_end,dt,
-  cout<< arg1[0] << " " << arg1[1] << "\n" );
+  cout << arg1[0] << " " << arg1[1] << "\n" );
 \end{lstlisting}
 
 \vspace{2ex}
@@ -381,14 +408,15 @@ More integrate versions:
 \begin{lstlisting}
 integrate_const(s,ode,x,t,dt,obs);
 \end{lstlisting}
-
-Performance loss when constant step size integration is needed
-
-\pause
+\begin{lstlisting}
+integrate_adaptive(s,ode,x,t,dt,obs);
+\end{lstlisting}
 
 \vspace{2ex}
 
-\centerline{\includegraphics[draft=false,width=0.7\textwidth]{vdp_dense_output.pdf}}
+\centerline{\includegraphics[draft=false,width=0.6\textwidth]{vdp_dense_output.pdf}}
+
+\textbf{Problem:} Equidistant observation with adaptive step size integration?
 
 
 \end{frame}
@@ -401,15 +429,13 @@ Performance loss when constant step size integration is needed
 
 \vspace{2ex}
 
-Problem: Adaptive step size vs. constant step size integration 
- 
 \begin{lstlisting}
 auto s = make_dense_output( 1.0e-6 , 1.0e-6 ,
     runge_kutta_dopri5< state_type >() );
 integrate_const( s , p , x , t , dt );
 \end{lstlisting}
 
-Interpolation between two steps with the same precision as the stepper!
+Interpolation within integration interval with the same precision as the stepper!
 
 \vspace{2ex}
 
@@ -444,7 +470,12 @@ Interpolation between two steps with the same precision as the stepper!
  \vspace{2ex}
  Some of them have step-size control and dense-output!
 
+ \vspace{2ex}
+
+ For details see the odeint documentation!
+
 \end{frame}
+
 
 
 
@@ -455,16 +486,16 @@ Interpolation between two steps with the same precision as the stepper!
 
  \vspace{2ex}
  \begin{itemize}
-  \item Very easy example -- harmonic oscillator
-  \item Basic features of odeint
-  \item Different steppers -- Steppers, Error steppers, Controlled steppers, Dense output steppers
+  \item Very easy example -- nonlinear driven pendulum
+  \item Basic features of \odeint
+  \item Different steppers -- steppers, error steppers, controlled steppers, dense output steppers
   \item Integrate functions
  \end{itemize}
 
  \vspace{2ex}
 
  \pause
- \centerline{\bf Now, lets look at some advanced features!}
+ \centerline{\bf Now, let's look at some advanced features!}
 
 \end{frame}
 
@@ -495,24 +526,30 @@ Interpolation between two steps with the same precision as the stepper!
 \vspace{2ex}
 
 \begin{minipage}{0.48\textwidth}\begin{center}
-  Granular systems
-
-  \includegraphics[draft=false,width=0.75\textwidth]{granular_system.png}
- \end{center} \end{minipage}
-\pause
-\begin{minipage}{0.48\textwidth}\begin{center}
   ODEs on graphs
 
   \includegraphics[draft=false,width=0.7\textwidth]{neuron.jpg}
- \end{center}\end{minipage}
+ \end{center}\end{minipage}\pause
+\begin{minipage}{0.48\textwidth}\begin{center}
+  Parameter studies
+ 
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.59\textwidth]{lyap.jpg}
+ \end{center} \end{minipage}
 
  \vspace{2ex}
  \centerline{\bf High-Performance-Computing}
+
 
 \end{frame}
 
 
 
+
+
+
+
+\rem{
 \begin{frame}[fragile]
  \heading{Coupled phase oscillators}
 
@@ -556,7 +593,7 @@ Interpolation between two steps with the same precision as the stepper!
    
  
 \end{frame}
-
+}
 
 
 
@@ -578,23 +615,23 @@ typedef std::vector<double> state_type;
 
  \vspace{2ex}
 
- Animation
+ \centerline{Simulation}
 
 \end{frame}
 
 \begin{frame}[fragile]
 
- \heading{Phase compacton lattice -- Transition to chaos}
+ \heading{Phase compacton lattice -- Space-time plots}
 
  \vspace{2ex}
 
-\centerline{\begin{sideways}\hspace{3ex}index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_1.jpg}}
+\centerline{\begin{sideways}\hspace{0ex}spatial index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_1.jpg}}
 
 \centerline{time}
 
 
 \vspace{4ex}
-\centerline{\begin{sideways}\hspace{3ex}index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_2.jpg}}
+\centerline{\begin{sideways}\hspace{0ex}spatial index\end{sideways} \includegraphics[draft=false,width=0.9\textwidth]{transition_chaos_2.jpg}}
 
 \centerline{time}
  
@@ -606,6 +643,8 @@ typedef std::vector<double> state_type;
 
 
 
+
+\rem{
 \begin{frame}[fragile]
 
  \heading{Ensemble of phase oscillators -- SKIP}
@@ -621,6 +660,8 @@ $$\dot{\varphi}_k = \omega_k + \sum\limits_l \sin( \varphi_l - \varphi_k )$$
 Synchronized state $\varphi_k = \omega_S t + \varphi_{0,k} $
 
 \end{frame}
+
+
 
 
 
@@ -655,7 +696,7 @@ The ODE has now many parameters, use boost::ref
 Vielleicht koennen diese beiden Folien weg
 
 \end{frame}
-
+}
 
 
 \begin{frame}[fragile]
@@ -664,7 +705,7 @@ Vielleicht koennen diese beiden Folien weg
 
 \vspace{4ex}
 \begin{quotation}
-Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL). Thrust's high-level interface greatly enhances developer productivity while enabling performance portability between GPUs and multicore CPUs. Interoperability with established technologies (such as CUDA, TBB and OpenMP) facilitates integration with existing software. Develop high-performance applications rapidly with Thrust!
+``Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL). Thrust's high-level interface greatly enhances developer productivity while enabling performance portability between GPUs and multicore CPUs. Interoperability with established technologies (such as CUDA, TBB and OpenMP) facilitates integration with existing software. Develop high-performance applications rapidly with Thrust!''
 \end{quotation}
 
 \vspace{2ex}
@@ -725,14 +766,14 @@ Perturbations grow exponentially fast -- Butterfly effect
  $$
 
 
-Does one observ chaos over the whole parameter range?
+Does one observe chaos over the whole parameter range?
 
 \vspace{2ex}
 
 Lyapunov exponents:
 \begin{itemize}
  \item Measure of chaos
- \item Perturbations of the original system
+ \item Growth rate of perturbations
 \end{itemize}
 
 \vspace{2ex}
@@ -752,20 +793,22 @@ Vary $R$ from $0$ to $50$ and calculate the Lyapunov exponents!
 
 Euler method
 
-$$ x_i(t+\Delta t) = x_i(t) + \Delta t * f_i(x)$$
-
-\begin{itemize}
-\item Algebras perform the iteration over $i$
-\item Operations perform the elementary addition.
-\end{itemize}
+$$\text{for all i :}  \quad \quad x_i(t+\Delta t) = x_i(t) + \Delta t \cdot f_i(x)$$
 
 \vspace{2ex}
 
 \begin{lstlisting}
-typedef runge_kutta4< state_type ,
+typedef euler< state_type ,
    value_type , deriv_type , time_type,
    algebra , operations , resizer > stepper; 
 \end{lstlisting}
+
+
+\begin{itemize}
+\item Algebras perform the iteration over $i$.
+\item Operations perform the elementary addition.
+\end{itemize}
+
 
 \end{frame}
 
@@ -774,17 +817,24 @@ typedef runge_kutta4< state_type ,
  \heading{Intermezzo: Algebras and operations}
 
 \begin{lstlisting}
-typedef runge_kutta4< state_type ,
+typedef euler< state_type ,
    value_type , deriv_type , time_type,
    algebra , operations , resizer > stepper; 
 \end{lstlisting}
 
+Default template parameters:
+
 \begin{itemize}
- \item {\tt default\_operations}
  \item {\tt range\_algebra} -- Boost.Ranges
- \item {\tt vector\_space\_algebra} -- Passes the state directly to the operations
- \item {\tt fusion\_algebra} -- Compile-time sequences, like {\tt std::tuple< double , double >}
- \item {\tt thrust\_algebra} and {\tt thrust\_algebra} -- Thrust
+ \item {\tt default\_operations}
+\end{itemize}
+
+\vspace{2ex}
+For Thrust:
+
+\begin{itemize}
+ \item {\tt thrust\_algebra}
+ \item {\tt thrust\_operations}
 \end{itemize}
 
  
@@ -799,9 +849,9 @@ typedef runge_kutta4< state_type ,
  \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 typedef thrust::device_vector<double> state_type;
 typedef runge_kutta4<state_type,double,state_type,double,
-   thrust_algebra,thrust_operations,resizer> stepper; 
+   thrust_algebra,thrust_operations> stepper; 
 
-state_type x( N );
+state_type x( 3*N );
 // initialize x
 integrate_const( stepper() , lorenz_ensemble() ,
    x , 0.0 , 1000.0 , dt );
@@ -944,7 +994,9 @@ integrate_const{s,std::ref(ode),x,0.0,1.0,dt,
 
  \begin{lstlisting}
 std::vector<double> x(6,0.0);
-integrate(s,lorenz,make_pair(x.begin(),x.begin()+3),0.0,10.0,dt);
+integrate(s,lorenz,
+  make_pair(x.begin(),x.begin()+3),
+  0.0,10.0,dt);
 integrate(s,lorenz_pert,x,10.0,1000.0,dt);
  \end{lstlisting}
 
@@ -968,24 +1020,18 @@ $$
 
  \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 typedef std::vector<std::complex<double> > state_type;
+
 struct dnls
 {
   std::vector<double> eps;
   void operator()(const state_type &x, state_type &dxdt,
     double t) const
   {
-    const double V=0.5 , gamma = 2.0;
-    const complex<double> I(0.0,1.0);
-
-    size_t N = x.size();
-    dxdt[0] = dxdt[N-1] = 0.0;
-    for(size_t i=1; i<N-1; ++i)
-    {
-      dxdt[i] = -I * ( eps[i]*x[i] + V*([x+1]+x[i-1])
-        - gamma*norm(x[i])*x[i] );
-    }
+    // ...
   }
 };
+
+runge_kutta_fehlberg78< state_type > stepper;
  \end{lstlisting}
 
 \end{frame}
@@ -995,7 +1041,7 @@ struct dnls
 
  \vspace{1ex}
  \begin{columns}[T]
-  \begin{column}{0.4\textwidth}
+  \begin{column}{0.35\textwidth}
    \centerline{\includegraphics[draft=false,width=0.9\textwidth]{2dlattice.pdf}}
   \end{column}
   \begin{column}{0.58\textwidth}
@@ -1013,11 +1059,14 @@ Two-dimensional phase lattice
   \end{column}
  \end{columns}
 
-\vspace{2ex}
+\vspace{1ex}
 
-\begin{lstlisting}
- typedef ublas::matrix<double> state_type1;
- typedef mtl::dense2D<double> state_type2;
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef ublas::matrix<double> state_type1;
+typedef mtl::dense2D<double> state_type2;
+
+runge_kutta_fehlberg78< state_type1 , double ,
+  state_type1 , double , vector_space_algebra > stepper1;
 \end{lstlisting}
 
 \pause
@@ -1081,7 +1130,7 @@ typedef runge_kutta_dopri5< state_type , double , deriv_type , time_type , fusio
 \includegraphics[draft=false,width=0.9\textwidth]{self_expanding_lattice.pdf}
 
 \vspace{0.5ex}
-{\scriptsize Enlarge the state when waves hit the boundary}
+{\scriptsize Enlarge the lattice when waves hit the boundaries}
 \end{minipage}
 \pause
 

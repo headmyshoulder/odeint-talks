@@ -52,7 +52,7 @@
 \pause
 \begin{minipage}{0.48\textwidth}
  \begin{center}
-  Reaction and relaxation equations (i.e. blood alcohol content)
+  Reaction and relaxation equations (i.e. blood alcohol content, chemical reaction rates)
  \end{center}
 \end{minipage}
 \pause
@@ -112,13 +112,13 @@ $$
  \heading{Numerical integration of ODEs}
   
 \vspace{4ex}
-    Find a numerical solution of an ODE an its initial value problem 
+    Find a numerical solution of an ODE and its IVP
     \[ \dot{x} = f(x,t) \,\,\textrm{,} \quad \quad x(t=0) = x_0\]
 
    \vspace{2ex}
 
    Example: Explicit Euler
-   \[ x(t + \Delta t ) = x(t) + \Delta t \,\, f(x(t),t) + \mathcal{O}(\Delta t^2)\]
+   \[ x(t + \Delta t ) = x(t) + \Delta t \,\cdot\, f(x(t),t) + \mathcal{O}(\Delta t^2)\]
 
    \vspace{2ex}
 
@@ -163,7 +163,7 @@ Download
 
 Modern C++
 \begin{itemize}
- \item Generic programming, functional programming 
+ \item Generic programming, functional programming, template-meta programming
  \item Fast, easy-to-use and extendable.
  \item Container independent
  \item Portable
@@ -175,56 +175,34 @@ Modern C++
 
 
 
-\begin{frame}[fragile]
- 
- \heading{Who uses odeint}
-
-\vspace{4ex}
-
-
-
-\begin{minipage}{0.2\textwidth}
- \begin{center}
-  NetEvo
-
-  \vspace{1ex}
-  
-  \includegraphics[draft=false,width=1.0\textwidth]{netevo.png}
- \end{center}
-\end{minipage}
-\hspace{4ex}\begin{minipage}{0.4\textwidth}
- \begin{center}
-  OMPL -- Open Motion Planning Library
- \end{center}
-\end{minipage}
-
-
-\end{frame}
 
 \begin{frame}[fragile]
  \heading{Motivation}
 
  \vspace{2ex}
 
- We want to solve ODEs
+ We want to solve ODEs $\dot{x}=f(x,t)$
  \begin{itemize}
   \item using  {\tt double}, {\tt std::vector}, {\tt std::array}, \dots as state types.
-  \item with complex numbers.
-  \item on one, two and/or three-dimensional lattices.
-  \item on Graphs.
+  \item with complex numbers,
+  \item on one, two, three-dimensional lattices, and or on graphs.
   \item on graphic cards.
   \item with arbitrary precision types.
  \end{itemize}
 
- \vspace{4ex}
- \centerline{{\bf Container independent} and {\bf portable} algorithms are needed!}
+ \vspace{2ex}
+
+Existing libraries support only one state type!
+
+\vspace{4ex}
+\centerline{\textbf{Container independent} and {\bf portable} algorithms are needed!}
 
 \end{frame}
 
 
 
 
-
+\rem{
 \begin{frame}
   \heading{Motivation: The interface problem in C/C++, SKIP!!}
 
@@ -259,9 +237,11 @@ Modern C++
   \end{exampleblock}
 
 \end{frame}
+}
 
 
 
+\rem{
 \begin{frame}
   
   \heading{Portability of your algorithm, SKIP!!}
@@ -300,5 +280,5 @@ Modern C++
   \end{exampleblock}
 
 \end{frame}
-
+}
 
