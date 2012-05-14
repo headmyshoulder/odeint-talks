@@ -779,6 +779,59 @@ Applications and use cases for GPUs:
 
 \begin{frame}[fragile]
  
+\heading{Nonlinear pendulum -- Deterministic chaos}
+
+ $$
+  \dot{x} = y \quad \quad \dot{y} = - \sin(x) - \mu y + \varepsilon \sin \omega_E t 
+ $$
+
+\vspace{2ex}
+Perturbations grow exponentially fast -- Butterfly effect
+
+\vspace{2ex}
+
+\centerline{\includegraphics[draft=false,angle=270,width=0.6\textwidth]{pendulum2.jpg}}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ 
+  \heading{Nonlinear pendulum -- Parameter study}
+
+
+$$
+  \dot{x} = y \quad \quad \dot{y} = - \sin(x) - \mu y + \varepsilon \sin \omega_E t 
+ $$
+
+
+Does one observe chaos over the whole parameter range?
+
+\vspace{2ex}
+
+Lyapunov exponents:
+\begin{itemize}
+ \item Measure of chaos
+ \item Growth rate of perturbations
+\end{itemize}
+
+\vspace{2ex}
+Vary $\varepsilon$ from $0$ to $5.0$ and $\omega_E$ from $0.5$ to $1.5$ and calculate the Lyapunov exponents!
+
+\vspace{2ex}
+\centerline{\bf Use CUDA and Thrust!}
+
+\end{frame}
+
+
+
+
+
+\rem{
+
+\begin{frame}[fragile]
+ 
 \heading{Lorenz system -- Deterministic chaos}
 
  $$
@@ -794,9 +847,8 @@ Perturbations grow exponentially fast -- Butterfly effect
 
 \centerline{\includegraphics[draft=false,width=0.8\textwidth]{lorenz.jpg}}
 
-
-
 \end{frame}
+
 
 
 \begin{frame}[fragile]
@@ -826,6 +878,9 @@ Vary $R$ from $0$ to $50$ and calculate the Lyapunov exponents!
 \centerline{\bf Use CUDA and Thrust!}
 
 \end{frame}
+
+}
+
 
 
 \begin{frame}[fragile]
@@ -878,12 +933,139 @@ For Thrust:
 \begin{itemize}
  \item {\tt thrust\_algebra}
  \item {\tt thrust\_operations}
+ \item {\tt thrust::device\_vector}
 \end{itemize}
 
  
 \end{frame}
 
 
+
+\begin{frame}[fragile]
+
+ \heading{Calculate an ensemble of pendulums}
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef thrust::device_vector<double> state_type;
+typedef runge_kutta4<state_type,double,state_type,double,
+   thrust_algebra,thrust_operations> stepper; 
+
+state_type x( 2*N );
+// initialize x
+integrate_const( stepper() , pendulum_ensemble() ,
+   x , 0.0 , 1000.0 , dt );
+ \end{lstlisting}
+
+\vspace{2ex}
+
+\centerline{Memory layout:}
+
+\vspace{1ex}
+
+\centerline{\includegraphics[draft=false,width=0.7\textwidth]{memory_layout2.pdf}}
+
+\vspace{6ex}
+
+\centerline{Everything seems easy!}
+\vspace{2ex}
+\centerline{{\bf But} how does {\tt pendulum\_ensemble} look like?}
+ 
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+
+ \heading{Ensemble of nonlinear pendulums}
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+struct pendulum_ensemble {
+  size_t N;
+  state_type eps , omega;
+
+  template< class State , class Deriv >
+  void operator()(
+    const State &x , Deriv &dxdt , value_type t ) const {
+  
+    thrust::for_each(
+      thrust::make_zip_iterator( thrust::make_tuple(
+        x.begin() , x.begin()+N , 
+        eps.begin() , omega.begin() , 
+        dxdt.begin(), dxdt.begin()+N 
+      ) ) ,
+      thrust::make_zip_iterator( thrust::make_tuple(
+        x.begin()+N , x.begin()+2*N 
+        eps.end() , omega.end() ,
+        dxdt.begin()+N,dxdt.begin()+2*N
+      ) ) ,
+      pendulum_functor(t) );
+  }
+
+  // ...
+};
+ \end{lstlisting}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+ \heading{Ensemble of nonlinear pendulums}
+
+ \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+struct pendulum_ensemble
+{
+  // ...
+
+  struct pendulum_functor
+  {
+    double time;
+    pendulum_functor( double _time ) : time(_time) { }
+    
+    template< class T > __host__ __device__
+    void operator()( T t ) const
+    {
+      value_type x = thrust::get< 0 >( t );
+      value_type y = thrust::get< 1 >( t );
+      value_type eps = thrust::get< 2 >( t );
+      value_type omega = thrust::get< 3 >( t );
+      thrust::get< 4 >( t ) = x
+      thrust::get< 5 >( t ) = -x - mu*y
+            + eps * sin( omega * time );
+    }
+  };
+};
+ \end{lstlisting}
+
+
+\end{frame}
+
+
+\rem{
+
+\begin{frame}[fragile]
+
+ \heading{Nonlinear pendulum parameter study -- Results}
+
+ \vspace{4ex}
+
+\centerline{\includegraphics[draft=false,width=0.8\textwidth]{lyap_lorenz.pdf}}
+
+\end{frame}
+
+}
+
+
+
+
+
+
+
+
+\rem{
 
 \begin{frame}[fragile]
 
@@ -927,7 +1109,7 @@ integrate_const( stepper() , lorenz_ensemble() ,
  \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 struct lorenz_ensemble {
   size_t N;
-  state_type beta;
+  state_type R;
 
   template< class State , class Deriv >
   void operator()(
@@ -936,12 +1118,12 @@ struct lorenz_ensemble {
     thrust::for_each(
       thrust::make_zip_iterator( thrust::make_tuple(
         x.begin() , x.begin()+N , x.begin()+2*N ,
-        beta.begin() ,
+        R.begin() ,
         dxdt.begin(), dxdt.begin()+N, dxdt.begin()+2*N
       ) ) ,
       thrust::make_zip_iterator( thrust::make_tuple(
         x.begin()+N , x.begin()+2*N , x.begin()+3*N ,
-        beta.end() ,
+        R.end() ,
         dxdt.begin()+N,dxdt.begin()+2*N,dxdt.begin()+3*N
       ) ) ,
       lorenz_functor() );
@@ -996,6 +1178,10 @@ struct lorenz_ensemble
 \centerline{\includegraphics[draft=false,width=0.8\textwidth]{lyap_lorenz.pdf}}
 
 \end{frame}
+
+}
+
+
 
 
 
