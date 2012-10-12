@@ -35,7 +35,7 @@ int main( int argc , char **argv )
     // 0.0 , 0.0 , 0.0
     // 0.1 , 0.0 , 0.0
     // 0.1 , 1.05 , 1.5
-    pendulum p( 0.1 , 1.05 , 1.5 );
+    pendulum p( 0.0 , 0.0 , 0.0 );
 
     state_type x = {{ 1.0 , 0.0 }};
     double t = 0.0;
