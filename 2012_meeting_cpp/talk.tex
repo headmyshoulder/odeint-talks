@@ -1,0 +1,233 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemesplit}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{amsmath,amssymb}
+\usepackage{multimedia}
+\usepackage{times}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage{color}
+\usepackage{rotating}
+
+\newcommand{\re}{\text{Re}}
+\newcommand{\im}{\text{Im}}
+\newcommand{\de}{\mbox{d}}
+\newcommand{\eref}[1]{(\ref{#1})}
+\newcommand{\ii}{\text{i}}
+\newcommand{\ee}{\text{e}}
+\newcommand{\mathbi}[1]{\textbf{\em #1}}
+\newcommand{\rem}[1]{}
+
+\newcommand{\heading}[1]{\centerline{\Large #1} \vspace{0.5em}}
+%\newcommand{\heading}[1]{\frametitle{\centerline{#1}}}
+
+\newcommand{\odeint}[0]{odeint}
+
+
+% Layout specification
+
+% \usetheme{AnnArbor}
+% \usetheme{Antibes}
+% \usetheme{Bergen}
+% \usetheme{Berkeley}
+% \usetheme{Berlin}
+% \usetheme{Boadilla}
+% \usetheme{boxes}
+% \usetheme{CambridgeUS}
+% \usetheme{Copenhagen}
+% \usetheme{Darmstadt}
+% \usetheme{default}
+% \usetheme{Dresden}
+% \usetheme{Frankfurt}
+% \usetheme{Goettingen}
+% \usetheme{Hannover}
+% \usetheme{Ilmenau}
+% \usetheme{JuanLesPins}
+% \usetheme{Luebeck}
+% \usetheme{Madrid}
+% \usetheme{Malmoe}
+% \usetheme{Marburg}
+% \usetheme{Montpellier}
+% \usetheme{PaloAlto}
+% \usetheme{Pittsburgh}
+% \usetheme{Rochester}
+% \usetheme{Singapore}
+% \usetheme{Szeged}
+\usetheme{Warsaw}
+
+% \usecolortheme{albatross}
+% \usecolortheme{beaver}
+% \usecolortheme{beetle}
+% \usecolortheme{crane}
+% \usecolortheme{default}
+% \usecolortheme{dolphin}
+% \usecolortheme{dove}
+% \usecolortheme{fly}
+% \usecolortheme{lily}
+% \usecolortheme{orchid}
+% \usecolortheme{rose}
+% \usecolortheme{seagull}
+% \usecolortheme{seahorse}
+% \usecolortheme{sidebartab}
+% \usecolortheme{structure}
+% \usecolortheme{whale}
+% \usecolortheme{wolverine}
+
+% \usefonttheme{default}
+% \usefonttheme{professionalfonts}
+% \usefonttheme{serif}
+% \usefonttheme{structurebold}
+% \usefonttheme{structureitalicserif}
+% \usefonttheme{structuresmallcapsserif}
+
+% \useinnertheme{circles}
+% \useinnertheme{default}
+% \useinnertheme{inmargin}
+% \useinnertheme{rectangles}
+% \useinnertheme{rounded}
+
+% \useoutertheme{default}
+% \useoutertheme{infolines}
+% \useoutertheme{miniframes}
+% \useoutertheme{shadow}
+% \useoutertheme{sidebar}
+% \useoutertheme{smoothbars}
+% \useoutertheme{smoothtree}
+% \useoutertheme{split}
+% \useoutertheme{tree}
+
+
+
+% Meta
+
+\title[odeint]{odeint}
+\subtitle[odeint]{Solving ordinary differential equations in C++}
+\author[Karsten Ahnert]{Karsten Ahnert}
+\institute[Ambrosys GmbH]{Ambrosys -- Gesellschaft f\"ur Management komplexer Systeme, Potsdam}
+\date{November 8, 2012}
+%\logo{\pgfimage[width=2cm,height=2cm]{logo}}
+\titlegraphic{\includegraphics[width=4cm]{ambrosys}}
+\subject{Subject}
+\keywords{Keyword1,Keyword2}
+
+
+
+\definecolor{dark-gray}{gray}{0.15}
+\definecolor{light-gray}{gray}{0.8}
+\definecolor{lighter-gray}{gray}{0.9}
+
+\definecolor{dark-green}{rgb}{0,0.4,0}
+\definecolor{dark-red}{rgb}{0.2,0,0}
+
+\newcommand{\highlight}[1]{\bf #1}
+
+\lstset{
+         basicstyle=\small\ttfamily, % Standardschrift
+         %numbers=left,               % Ort der Zeilennummern
+         numberstyle=\tiny,          % Stil der Zeilennummern
+         %stepnumber=2,               % Abstand zwischen den Zeilennummern
+         numbersep=0pt,              % Abstand der Nummern zum Text
+         tabsize=2,                  % Groesse von Tabs
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen
+         frame=single,         
+         backgroundcolor=\color{lighter-gray},
+         tabsize=2,
+         keywordstyle=\color{dark-green},
+         identifierstyle=,
+         commentstyle=\color{dark-gray}\normalfont\rmfamily\itshape,
+         stringstyle=\color{dark-red},
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         xleftmargin=10pt,
+         xrightmargin=10pt,
+         framexleftmargin=5pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         language=c++,
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?        
+ }
+\lstloadlanguages{C++}
+
+
+% What is shown
+
+\beamertemplatenavigationsymbolsempty
+  \setbeamertemplate{footline}{}
+%\setbeamertemplate{footline}{\insertframenumber}
+\setbeamertemplate{headline}{}
+
+
+\parindent0pt
+
+
+
+\rem
+{
+Audience:
+
+* C++ Entwickler
+* die meisten haben wenig Hintergrund zu ODEs
+* Interessiert an modernen C++ Methode
+
+Aufbau
+
+* Einfuehrung und Uebersicht
+  * Beispiele
+  * What is an ODE
+  * Numerical Integration of ODEs
+  * odeint
+  * Struktur von odeint
+  * Motivation
+  * Mini Tutorial
+  * Verschiedene Steppertypen
+* C++ Details
+  * Iteratoren im Detail
+  * Einige Beispiele fuer Grosse Systeme
+    * Parameter Study - Nonlinear Pendulum
+    * Cuda
+    * OpenCL via VexCL
+* Conclusion Ausblick
+  * Featureuebersicht
+  * Stepper uebersicht
+}
+
+
+
+
+
+
+
+\begin{document}
+
+
+
+\frame{
+  \titlepage
+
+
+}
+
+\begin{frame}
+  \heading{Outline}
+
+  \tableofcontents
+\end{frame}
+
+
+\input{introduction}
+
+\input{tutorial}
+
+\input{technical_details}
+
+\input{conclusion}
+
+%\input{old_stuff}
+
+\end{document}

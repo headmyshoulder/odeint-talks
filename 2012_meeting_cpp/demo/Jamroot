@@ -1,0 +1,23 @@
+# Copyright Karsten Ahnert 2011.
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+import boost ;
+import os ;
+import path ;
+
+boost.use-project ;
+
+path-constant ODEINT_ROOT : [ os.environ ODEINT_ROOT ] ;
+
+project
+    : requirements
+    <library>/boost//headers
+    <include>$(ODEINT_ROOT)
+    <cxxflags>--std=c++0x 
+    ;
+    
+
+# pendulum and oscillator examples
+exe pendulum1 : pendulum1.cpp ;
+exe phase_compacton_lattice : phase_compacton_lattice.cpp ;
