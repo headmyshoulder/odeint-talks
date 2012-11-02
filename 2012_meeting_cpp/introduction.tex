@@ -49,13 +49,13 @@
   \includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
  \end{center}
 \end{minipage}
-\pause
+% \pause
 \begin{minipage}{0.48\textwidth}
  \begin{center}
   Reaction and relaxation equations (i.e. blood alcohol content, chemical reaction rates)
  \end{center}
 \end{minipage}
-\pause
+% \pause
 \vspace{2ex}
 
 \begin{minipage}{0.48\textwidth}
@@ -65,7 +65,7 @@
   \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
  \end{center}
 \end{minipage}
-\pause
+% \pause
 \begin{minipage}{0.48\textwidth}
  \begin{center}
   Interacting neurons
@@ -73,7 +73,7 @@
   \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
  \end{center}
 \end{minipage}
-\pause
+% \pause
 \vspace{2ex}
 
 \begin{itemize}
@@ -145,25 +145,25 @@ $$
 Open source
 \begin{itemize}
 \item Boost license -- do whatever you want do to with it 
+\item Accepted as Boost library -- Release with Version 1.53
 \end{itemize}
 
-\pause
+% \pause
 
 \vspace{2ex}
 
 Download
 \begin{itemize}
 \item \texttt{\textbf{www.odeint.com}}
-% \item \texttt{https://github.com/headmyshoulder/odeint-v2}
 \end{itemize}
 
-\pause
+% \pause
 
 \vspace{2ex}
 
 Modern C++
 \begin{itemize}
- \item Generic programming, functional programming, template-meta programming
+ \item Paradigms: generic, template-meta programming, functional
  \item Fast, easy-to-use and extendable.
  \item Container independent
  \item Portable
@@ -172,6 +172,14 @@ Modern C++
 }
 
 
+
+\begin{frame}
+ \heading{Structure of \odeint}
+ 
+ \vspace{2ex}
+ \centerline{\includegraphics[draft=false,width=1.0\textwidth]{odeint_components.png}}
+
+\end{frame}
 
 
 
@@ -198,6 +206,9 @@ Existing libraries support only one state type!
 \centerline{\textbf{Container independent} and {\bf portable} algorithms are needed!}
 
 \end{frame}
+
+
+
 
 
 
@@ -282,3 +293,242 @@ Existing libraries support only one state type!
 \end{frame}
 }
 
+
+
+
+
+
+
+
+
+
+
+\begin{frame}[fragile]
+
+\heading{Example -- Pendulum}
+
+\vspace{2ex}
+
+\begin{columns}[T]
+  \begin{column}{0.35\textwidth}
+    \includegraphics[draft=false,width=1.0\textwidth]{pendulum.pdf}
+
+   \vspace{4ex}
+  \end{column}
+
+  \begin{column}{0.65\textwidth}
+
+ $$\ddot{\varphi} = -\omega_0^2 \sin \varphi - \mu \dot{\varphi} + \varepsilon \sin \omega_E t $$
+
+ \vspace{2ex}
+
+ Create a first order ODE
+
+ \vspace{1ex}
+
+ \centerline{$x_1 = \varphi \,\, \text{,} \quad x_2 = \dot{\varphi}$}
+
+ \vspace{-3ex}
+ \begin{align*}
+   \dot{x_1} &= x_2 \\
+   \dot{x_2} &= - \omega_0  \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t  
+ \end{align*}
+
+
+ $x_1$ and $x_2$ are the state space variables
+
+ 
+  \end{column}
+\end{columns}
+
+ 
+
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}[fragile]
+
+\centerline{ \Large Let's solve the pendulum example numerically}
+
+\vspace{2ex}
+\begin{lstlisting}
+#include <boost/numeric/odeint.hpp>
+
+namespace odeint = boost::numeric::odeint;
+\end{lstlisting}
+
+\vspace{2ex}
+
+\centerline{$\dot{x_1} = x_2 \,\,\text{,} \quad \dot{x_2} = - \omega_0 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$}
+
+\vspace{2ex}
+\begin{lstlisting}
+typedef std::array<double,2> state_type;
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\centerline{ \Large Let's solve the pendulum example numerically}
+
+\vspace{2ex}
+
+$\dot{x_1} = x_2$, $\dot{x_2} = - \omega_0^2 \sin x_1 - \mu x_2 + \varepsilon \sin \omega_E t$ \hspace{6ex} $\omega_0^2 = 1$
+
+\vspace{2ex}
+
+\begin{lstlisting}
+struct pendulum
+{
+  double m_mu, m_omega, m_eps;
+
+  pendulum(double mu,double omega,double eps)
+  : m_mu(mu),m_omega(omega),m_eps(eps) { }
+
+  void operator()(const state_type &x,state_type &dxdt,double t) const
+  {
+    dxdt[0] = x[1];
+    dxdt[1] = -sin(x[0]) - m_mu * x[1] +
+        m_eps * sin(m_omega*t);
+  }
+};
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \centerline{ \Large Let's solve the pendulum example numerically}
+
+\vspace{2ex}
+$\varphi(0) = x_1(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = x_2(0) = 0$
+\vspace{2ex}
+
+\begin{lstlisting}
+odeint::runge_kutta4< state_type > rk4;
+state_type x = {{ 1.0 , 0.0 }};
+double t = 0.0 , t_end = 10.0 , dt = 0.0;
+integrate_const( rk4 ,
+    pendulum( 0.1 , 1.05 , 1.5 ) ,
+    x , t , t_end , dt ,
+    []( const state_type &x , double t ) {
+        cout << x[0] << " " << x[1] << "\n"; }
+    );
+\end{lstlisting}
+
+\vspace{2ex}
+
+\centerline{$x(0) \mapsto x(\Delta t) \mapsto x(2\Delta t) \mapsto x(3\Delta t) \mapsto \dots$}
+
+\end{frame}
+
+
+
+\rem{
+\begin{frame}[fragile]
+ \heading{Simulation}
+
+ \vspace{1ex}
+
+ \centerline{Oscillator: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{undamped.pdf}}
+
+% \vspace{1ex}
+ 
+\centerline{Damped oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{damped.pdf}}
+
+% \vspace{1ex}
+
+ \centerline{Damped, driven oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
+
+ \vspace{1ex}
+
+ \centerline{\includegraphics[draft=false,width=0.6\textwidth]{damped_driven.pdf}}
+
+
+\end{frame}
+}
+
+
+
+
+
+\begin{frame}[fragile]
+ \heading{Simulation}
+
+ \vspace{2ex}
+
+\begin{minipage}[t]{0.5\textwidth}
+\vspace{0pt}
+Oscillator
+
+\vspace{1ex}
+$\mu=0 \, \text{,} \,\, \omega_E = 0 \, \text{,} \,\, \varepsilon=0$
+
+\vspace{7ex}
+Damped oscillator:
+
+\vspace{1ex}
+$\mu=0.1  \, \text{,} \,\, \omega_E = 0  \, \text{,} \,\, \varepsilon=0$
+
+\vspace{7ex}
+Damped, driven oscillator:
+
+\vspace{1ex}
+$\mu=0.1  \, \text{,} \,\, \omega_E = 1.05  \, \text{,} \,\, \varepsilon=1.5$
+\end{minipage} %\pause
+\begin{minipage}[t]{0.49\textwidth}
+\vspace{0pt}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{undamped.pdf}}
+
+\vspace{2.5ex}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{damped.pdf}}
+
+\vspace{2.5ex}
+\centerline{\includegraphics[draft=false,width=1.0\textwidth]{damped_driven.pdf}}
+\end{minipage}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+ \heading{Steppers -- solvers}
+
+ \vspace{2ex}
+
+ {\bf Stepper Concepts}: Stepper, ErrorStepper, ControlledStepper, DenseOutputStepper
+
+ \vspace{2ex}
+
+ {\bf Stepper types}: 
+ \begin{itemize}
+  \item Implicit -- {\tt implicit\_euler}, {\tt rosenbrock4}
+  \item Symplectic -- {\tt symplectic\_rkn\_sb3a\_mclachlan}
+  \item Predictor-Corrector -- {\tt adams\_bashforth\_moulton}
+  \item Extrapolation -- {\tt bulirsch\_stoer}
+  \item Multistep methods -- {\tt adams\_bashforth\_moulton}
+ \end{itemize}
+
+ \vspace{2ex}
+ Some of them have step-size control and dense-output!
+
+ \vspace{2ex}
+
+ For details see the odeint documentation!
+
+\end{frame}

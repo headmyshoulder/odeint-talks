@@ -1,0 +1,145 @@
+\section{Modern C++ in \odeint}
+
+\begin{frame}
+
+\heading{Modern C++ in \odeint}
+
+\vspace{4ex}
+
+\begin{itemize}
+\item Iterators
+\end{itemize}
+\begin{itemize}
+\item Separation of algorithm from arithmetics
+\end{itemize}
+
+
+\end{frame}
+
+
+
+
+
+
+\begin{frame}[fragile]
+
+\heading{ODEs are solve iteratively}
+
+\vspace{3ex}
+Constant step size integration:
+\begin{lstlisting}
+integrate_const(rk4, ode, x, t1, t2, dt,
+  []( const state_type &x , double t ) {
+    cout << x[0] << " " << x[1] << "n"; } );
+\end{lstlisting}
+
+\vspace{1ex}
+Adaptive step size integration:
+\begin{lstlisting}
+integrate_adaptive(dopri5, ode, x, t1, t2, dt,
+  []( const state_type &x , double t ) {
+    cout << x[0] << " " << x[1] << "n"; } );
+\end{lstlisting}
+
+\vspace{2ex}
+\centerline{\bf Can one use iterators?}
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+
+\heading{Iterators}
+
+\vspace{2ex}
+
+Iterators
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+auto first = make_const_step_iterator_begin(rk4, ode, x, t1, t2, dt );
+auto last = make_const_step_iterator_end(rk4, ode, x );
+\end{lstlisting}
+
+\vspace{2ex}
+
+Iterator ranges
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+boost::range::for_each(
+  make_const_step_range(rk4, ode, x, t1, t2, dt ) ,
+  []( const state_type &x ) { cout << x[0] << " " << x[1] << "\n"; } );
+\end{lstlisting}
+
+
+
+
+\vspace{2ex}
+
+{\small
+\begin{itemize}
+\item odeint's iterators are single-pass iterators
+\item Specializations for stepper concepts
+\item {\tt const\_step\_iterator<>}, {\tt adaptive\_iterator<>}
+\item {\tt const\_step\_time\_iterator<>}, {\tt adaptive\_time\_iterator<>} -- value type is a pair of state and time of the ODE
+\end{itemize}
+}
+
+\rem{
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+template< class Stepper , class System >
+class const_step_iterator : public boost::iterator_facade <
+    const_step_iterator< Stepper , System > ,
+    typename Stepper::state_type const ,
+    boost::single_pass_traversal_tag >
+{
+    ...
+};
+\end{lstlisting}
+}
+
+
+\end{frame}
+
+
+
+
+
+
+\begin{frame}[fragile]
+
+\heading{Do fancy stuff with iterators!}
+
+\vspace{2ex}
+
+Average of the $x$-component of the solution
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+double av = boost::accumulate(
+  make_const_step_range(rk4, ode, x, t1, t2, dt),
+  0.0, []( double sum , const state_type &x ) {
+      return sum + x[0]; } );
+\end{lstlisting}
+
+\vspace{2ex}
+
+Find the first occurence of a threshold
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+auto iter = boost::find_if(
+  make_const_step_time_range(rk4,ode, x, t1, t2, dt),
+    [](const std::pair< state_type &, double> &x) {
+      return ( x.first[0] < 0.0 ); } );
+\end{lstlisting}
+
+
+\end{frame}
+
+
+
+
+
+
+\begin{frame}
+
+\heading{Cuda/OpenCL}
+
+\end{frame}
+
