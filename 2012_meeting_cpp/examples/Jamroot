@@ -9,14 +9,19 @@ import path ;
 boost.use-project ;
 
 path-constant ODEINT_ROOT : [ os.environ ODEINT_ROOT ] ;
+path-constant VEXCL_ROOT : [ os.environ VEXCL_ROOT ] ;
+CUDA_INCLUDE = /usr/local/cuda/include ;
 
 project
     : requirements
     <library>/boost//headers
     <include>$(ODEINT_ROOT)
-    <cxxflags>--std=c++0x 
+    <include>$(VEXCL_ROOT)
+    <include>$(CUDA_INCLUDE)
+    <toolset>gcc:<cxxflags>--std=c++0x 
     ;
-    
+
+lib opencl : : <name>OpenCL ;  
 
 exe bowl : bowl.cpp ;
 
@@ -28,3 +33,5 @@ exe nonlinear_pendulum : nonlinear_pendulum.cpp ;
 exe phase_compacton_lattice : phase_compacton_lattice.cpp ;
 exe dissipative_phase_lattice : dissipative_phase_lattice.cpp ;
 exe vdp : vdp.cpp ;
+
+exe vexcl_pendulum : vexcl_pendulum.cpp opencl ;
