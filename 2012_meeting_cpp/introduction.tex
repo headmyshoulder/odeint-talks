@@ -172,7 +172,7 @@ Modern C++
 }
 
 
-
+\rem{
 \begin{frame}
  \heading{Structure of \odeint}
  
@@ -180,7 +180,7 @@ Modern C++
  \centerline{\includegraphics[draft=false,width=1.0\textwidth]{odeint_components.png}}
 
 \end{frame}
-
+}
 
 
 
@@ -412,7 +412,7 @@ $\varphi(0) = x_1(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = x_2(0) = 0$
 \begin{lstlisting}
 odeint::runge_kutta4< state_type > rk4;
 state_type x = {{ 1.0 , 0.0 }};
-double t = 0.0 , t_end = 10.0 , dt = 0.0;
+double t = 0.0 , t_end = 10.0 , dt = 0.01;
 integrate_const( rk4 ,
     pendulum( 0.1 , 1.05 , 1.5 ) ,
     x , t , t_end , dt ,
@@ -435,7 +435,7 @@ integrate_const( rk4 ,
 
  \vspace{1ex}
 
- \centerline{Oscillator: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+ \centerline{Pendulum: $\mu=0 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
  \vspace{1ex}
 
@@ -443,7 +443,7 @@ integrate_const( rk4 ,
 
 % \vspace{1ex}
  
-\centerline{Damped oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
+\centerline{Damped pendulum: $\mu=0.1 \,\, \text{,} \quad \omega_E = 0 \,\, \text{,} \quad \varepsilon=0$}
 
  \vspace{1ex}
 
@@ -451,7 +451,7 @@ integrate_const( rk4 ,
 
 % \vspace{1ex}
 
- \centerline{Damped, driven oscillator: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
+ \centerline{Damped, driven pendulum: $\mu=0.1 \,\, \text{,} \quad \omega_E = 1.05 \,\, \text{,} \quad \varepsilon=1.5$}
 
  \vspace{1ex}
 

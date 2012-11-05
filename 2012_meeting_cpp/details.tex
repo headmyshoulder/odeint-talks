@@ -10,7 +10,7 @@
 \item Iterators
 \end{itemize}
 \begin{itemize}
-\item Separation of algorithm from arithmetics
+\item Using CUDA / OpenCL (Separation of algorithm from arithmetics)
 \end{itemize}
 
 
@@ -65,9 +65,7 @@ auto last = make_const_step_iterator_end(rk4, ode, x );
 
 Ranges
 \begin{lstlisting}[basicstyle=\tiny\ttfamily]
-boost::range::for_each(
-  make_const_step_range(rk4, ode, x, t1, t2, dt ) ,
-  []( const state_type &x ) { cout << x[0] << " " << x[1] << "\n"; } );
+auto r = make_const_step_range(rk4, ode, x, t1, t2, dt );
 \end{lstlisting}
 
 
@@ -139,7 +137,7 @@ auto iter = boost::find_if(
 
 \begin{frame}
 
-\heading{Cuda/OpenCL for solving large system}
+\heading{CUDA/OpenCL for solving large system}
 
 \vspace{2ex}
 
@@ -305,7 +303,7 @@ struct ensemble
   {
     dxdt = std::make_tuple(
       x(1) ,
-      -sin(x(0)) - m_mu*x(1) + m_e*sin(m_omega*t)
+      -sin(x(0)) - m_mu*x(1) + m_eps*sin(m_omega*t)
       );
   }
 };
