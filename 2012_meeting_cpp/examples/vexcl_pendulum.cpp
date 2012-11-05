@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include <vexcl/vexcl.hpp>
-#include <vexcl/exclusive.hpp>
 
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/odeint/algebra/vector_space_algebra.hpp>
@@ -30,7 +29,7 @@ struct ensemble
 
     void operator()( const state_type &x , state_type &dxdt , double t )
     {
-        dxdt = std::make_tuple( x(1) , -sin( x(0) ) - m_mu * x(1) + m_e * sin( m_omega * t ) );
+        dxdt = std::make_tuple( x(1) , - sin( x(0) ) - m_mu * x(1) + m_eps * sin( m_omega * t ) );
     }
 };
 
@@ -88,6 +87,6 @@ int main( int argc , char **argv )
     vex::copy( X(0) , res );
 
     for( size_t i=0 ; i<n ; ++i )
-        cout << res[i] << "\t" << r[i] << "\n";
+        std::cout << eps[i] << "\t" << omega[i] << "\t" << res[i] << "\n";
 
 }
