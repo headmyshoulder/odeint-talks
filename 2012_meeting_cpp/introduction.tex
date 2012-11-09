@@ -145,7 +145,7 @@ $$
 Open source
 \begin{itemize}
 \item Boost license -- do whatever you want do to with it 
-\item Accepted as Boost library -- Release with Version 1.53
+\item Accepted as Boost library -- Will be release with V. 1.53
 \end{itemize}
 
 % \pause
@@ -413,7 +413,7 @@ $\varphi(0) = x_1(0) = 1 \,\, \text{,} \quad \dot{\varphi}(0) = x_2(0) = 0$
 odeint::runge_kutta4< state_type > rk4;
 state_type x = {{ 1.0 , 0.0 }};
 double t = 0.0 , t_end = 10.0 , dt = 0.01;
-integrate_const( rk4 ,
+odeint::integrate_const( rk4 ,
     pendulum( 0.1 , 1.05 , 1.5 ) ,
     x , t , t_end , dt ,
     []( const state_type &x , double t ) {
@@ -472,19 +472,19 @@ integrate_const( rk4 ,
 
 \begin{minipage}[t]{0.5\textwidth}
 \vspace{0pt}
-Oscillator
+Pendulum
 
 \vspace{1ex}
 $\mu=0 \, \text{,} \,\, \omega_E = 0 \, \text{,} \,\, \varepsilon=0$
 
 \vspace{7ex}
-Damped oscillator:
+Damped pendulum:
 
 \vspace{1ex}
 $\mu=0.1  \, \text{,} \,\, \omega_E = 0  \, \text{,} \,\, \varepsilon=0$
 
 \vspace{7ex}
-Damped, driven oscillator:
+Damped, driven pendulum:
 
 \vspace{1ex}
 $\mu=0.1  \, \text{,} \,\, \omega_E = 1.05  \, \text{,} \,\, \varepsilon=1.5$
