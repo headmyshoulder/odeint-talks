@@ -227,7 +227,7 @@ $$\text{for all i :}  \quad \quad x_i(t+\Delta t) = x_i(t) + \Delta t \cdot f_i(
 \vspace{2ex}
 
 \begin{lstlisting}
-typedef euler< state_type ,
+typedef odeint::euler< state_type ,
    value_type , deriv_type , time_type,
    algebra , operations , resizer > stepper; 
 \end{lstlisting}
