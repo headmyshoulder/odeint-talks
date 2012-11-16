@@ -1,4 +1,6 @@
 
+\section{MTL4}
+
 \begin{frame}[fragile]
 
  \heading{Calculate an ensemble of pendulums}
@@ -79,8 +81,44 @@ struct ensemble
 
 \end{frame}
 
+\begin{frame}
+  \heading{DSEL for intuitive use}
+  \begin{itemize}
+  \item The number of operations is limited.
+  \item But the number of types is not.
+  \end{itemize}
+  \small
+  \begin{tabbing}
+  \= A[iset\{2, 4, 3\}][iset\{8, 1\}] bla\= \code{A[irange][irange]} bla \=general sub-matrix; bla\= df \kill
+  \>A[3][7]\> \code{A[int][int]}\> matrix element\\
+  \>A[iall][irange(3, 7)]\> \code{A[irange][irange]}\> sub-matrix\\
+  \>A[4][irange(2, imax)]\> \code{A[int][irange]}\> row vector\\
+  \>A[iall][3]\> \code{A[irange][int]}\> column vector\\
+  \>A[iset\{2, 4, 3\}][iset\{8, 1\}]\> \code{A[iset][iset]}\> general sub-matrix \\
+\end{tabbing}
+\end{frame}
 
-\subsection{Our Vision of Portable Programming}
+
+\begin{frame}[containsverbatim]
+\heading{Example application: LU}
+\begin{lstlisting}
+template <typename Matrix>
+void inline lu(Matrix& LU)
+{
+    MTL_THROW_IF(num_rows(LU) != num_cols(LU), matrix_not_square());
+
+    for (std::size_t k= 0; k < num_rows(LU)-1; k++) {
+	irange r(k+1, imax); // Interval [k+1, n-1]
+	LU[r][k]/= LU[k][k];
+	LU[r][r]-= LU[r][k] * LU[k][r];
+    }
+}
+\end{lstlisting}
+\end{frame}
+
+
+
+%\subsection{Our Vision of Portable Programming}
 
 \swvision{Folie1}
 \swvision{Folie2}
@@ -108,32 +146,43 @@ struct ensemble
     \item Limits applicability of user types,
     \end{itemize}
   \item Many algorithms difficult or impossible on GPU
-
   \end{itemize}
 
 \end{frame}
 
-
-
 \begin{frame}
-  \heading{Portability}
+  \heading{Dynamic Memory Management}
   \begin{itemize}
-  \item Same abstractions and interfaces for
+  \item Dynamic memory management and heterogeneity
+  \item Complex data structures easier to initialize on CPU
+  \item Likewise for I/O
     \begin{itemize}
-    \item Sequential MTL4,
-    \item CUDA-MTL4, and
-    \item Parallel MTL4.
+    \item Reuse of CPU implementation
     \end{itemize}
-  \item Entirely generic design
-    \begin{itemize}
-    \item In fact, most of the code is identic
-    \end{itemize}
-
-
+  \item Small data can be handled on CPU
+  \item Types with and w/o CUDA support can be mixed
   \end{itemize}
-
 \end{frame}
+
 
 \begin{frame}
-  
+  \heading{Debugging}
+  \includegraphics[width=0.82\columnwidth]{DDD.pdf}
 \end{frame}
+
+
+% \begin{frame}
+%   \heading{Portability}
+%   \begin{itemize}
+%   \item Same abstractions and interfaces for
+%     \begin{itemize}
+%     \item Sequential MTL4,
+%     \item CUDA-MTL4, and
+%     \item Parallel MTL4.
+%     \end{itemize}
+%   \item Entirely generic design
+%     \begin{itemize}
+%     \item In fact, most of the code is identic
+%     \end{itemize}
+%   \end{itemize}
+% \end{frame}

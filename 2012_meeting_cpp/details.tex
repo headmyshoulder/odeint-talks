@@ -244,72 +244,72 @@ typedef odeint::euler< state_type ,
 
 
 
-\begin{frame}[fragile]
+% \begin{frame}[fragile]
 
- \heading{Calculate an ensemble of pendulums}
+%  \heading{Calculate an ensemble of pendulums}
 
- \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
-typedef vex::vector< double > vector_type;
-typedef vex::multivector< double , 2 > state_type;
-typedef runge_kutta4<state_type,double,state_type,double,
-  vector_space_algebra,default_operations> stepper_type;
+%  \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+% typedef vex::vector< double > vector_type;
+% typedef vex::multivector< double , 2 > state_type;
+% typedef runge_kutta4<state_type,double,state_type,double,
+%   vector_space_algebra,default_operations> stepper_type;
 
-state_type X(ctx.queue(), N);
-vector_type Eps(ctx.queue(), N);
-vector_type Omega(ctx.queue(), N);
+% state_type X(ctx.queue(), N);
+% vector_type Eps(ctx.queue(), N);
+% vector_type Omega(ctx.queue(), N);
 
-// initialize x, Eps, Omega
-integrate_const(stepper(), ensemble(Eps, Omega, 0.1) ,
-    X, 0.0, t_max, dt);
- \end{lstlisting}
+% // initialize x, Eps, Omega
+% integrate_const(stepper(), ensemble(Eps, Omega, 0.1) ,
+%     X, 0.0, t_max, dt);
+%  \end{lstlisting}
 
-\vspace{2ex}
+% \vspace{2ex}
 
-\centerline{Memory layout:}
+% \centerline{Memory layout:}
 
-\vspace{1ex}
+% \vspace{1ex}
 
-\centerline{\includegraphics[draft=false,width=0.7\textwidth]{memory_layout2.pdf}}
+% \centerline{\includegraphics[draft=false,width=0.7\textwidth]{memory_layout2.pdf}}
 
-\vspace{2ex}
+% \vspace{2ex}
 
-\centerline{Everything seems easy!}
-\vspace{2ex}
-\centerline{{\bf But} how does {\tt ensemble} look like?}
+% \centerline{Everything seems easy!}
+% \vspace{2ex}
+% \centerline{{\bf But} how does {\tt ensemble} look like?}
  
 
-\end{frame}
+% \end{frame}
 
 
 
 
-\begin{frame}[fragile]
+% \begin{frame}[fragile]
 
- \heading{Ensemble of nonlinear pendulums}
+%  \heading{Ensemble of nonlinear pendulums}
 
- \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
-struct ensemble
-{
-  const vector_type &m_eps;
-  const vector_type &m_omega;
-  double m_mu;
+%  \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+% struct ensemble
+% {
+%   const vector_type &m_eps;
+%   const vector_type &m_omega;
+%   double m_mu;
 
-  ensemble(const vector_type &eps,const vector_type &omega,
-    double mu)
-      : m_eps(eps), m_omega(omega), m_mu(mu) { }
+%   ensemble(const vector_type &eps,const vector_type &omega,
+%     double mu)
+%       : m_eps(eps), m_omega(omega), m_mu(mu) { }
 
-  void operator()(const state_type &x, state_type &dxdt,
-    double t)
-  {
-    dxdt = std::make_tuple(
-      x(1) ,
-      -sin(x(0)) - m_mu*x(1) + m_eps*sin(m_omega*t)
-      );
-  }
-};
- \end{lstlisting}
+%   void operator()(const state_type &x, state_type &dxdt,
+%     double t)
+%   {
+%     dxdt = std::make_tuple(
+%       x(1) ,
+%       -sin(x(0)) - m_mu*x(1) + m_eps*sin(m_omega*t)
+%       );
+%   }
+% };
+%  \end{lstlisting}
 
 
-\end{frame}
+% \end{frame}
 
 
