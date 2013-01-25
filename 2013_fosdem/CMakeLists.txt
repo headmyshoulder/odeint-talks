@@ -16,6 +16,10 @@ if ( LATEX_COMPILER )
                lorenz.jpg
                neuron.jpg
                solar_system.jpg
+               lorenz_perf.pdf
+               lyap.jpg
+               turbulence.jpg
+               lattices.jpg
 	DEFAULT_PDF
 	MANGLE_TARGET_NAMES
 	)

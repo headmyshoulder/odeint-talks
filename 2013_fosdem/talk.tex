@@ -7,6 +7,7 @@
 \usepackage{multimedia}
 \usepackage{times}
 \usepackage{ulem}
+% \usepackage{memoir}
 
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -107,9 +108,15 @@
 % Meta
 
 \title[odeint]{Solving ODEs with CUDA and OpenCL}
-\subtitle[odeint]{using Boost.Odeint}
-\author[Karsten Ahnert]{Karsten Ahnert$^{1,2}$ and Mario Mulansky$^2$}
-\institute[Universit\"at Potsdam]{$^1$ Ambrosys GmbH, Potsdam\\ $^2$ Institut f\"ur Physik und Astronomie, Universit\"at Potsdam}
+\subtitle[odeint]{Using Boost.Odeint}
+\author[Karsten Ahnert]{Karsten Ahnert$^{1,2}$ \\ {\vspace{2ex} \scriptsize Mario Mulansky$^2$, Denis Demidov$^3$, Karl Rupp$^4$, and Peter Gottschling$^5$}}
+\institute[Universit\"at Potsdam]{\fontsize{5}{5} \selectfont
+%\tiny 
+$^1$ Ambrosys GmbH, Potsdam $^2$ Institut f\"ur Physik und Astronomie, Universit\"at Potsdam\\
+$^3$ Kazan Branch of Joint Supercomputer Center, Russian Academy of Sciences, Kazan \\
+$^4$ Mathematics and Computer Science Division, Argonne National Laboratory\\
+$^5$ SimuNova, Dresden \& Inst. Scientific Computing, TU Dresden
+}
 \date{Februar 2, 2013}
 %\logo{\pgfimage[width=2cm,height=2cm]{logo}}
 \titlegraphic{\includegraphics[width=4cm]{ambrosys}\hspace{5ex}\includegraphics[width=1.5cm,height=1.5cm]{logo}\hspace{7ex}}
@@ -194,6 +201,44 @@
 
 
 \begin{frame}
+ 
+\heading{Motivation -- Solve large systems of ODEs}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Lattice systems
+
+  \vspace{3ex}
+
+  \includegraphics[draft=false,width=0.8\textwidth]{lattices.jpg}
+\end{center} \end{minipage}
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Discretiztations of PDEs
+
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.7\textwidth]{turbulence.jpg}
+\end{center} \end{minipage}
+
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}\begin{center}
+  ODEs on graphs
+
+  \includegraphics[draft=false,width=0.7\textwidth]{neuron.jpg}
+ \end{center}\end{minipage}
+\begin{minipage}{0.48\textwidth}\begin{center}
+  Parameter studies
+ 
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.59\textwidth]{lyap.jpg}
+ \end{center} \end{minipage}
+
+\end{frame}
+
+\rem{
+\begin{frame}
  \heading{Introduction}
 
  \begin{itemize}
@@ -204,8 +249,9 @@
  \end{itemize}
 
 \end{frame}
+}
 
-
+\rem{
 \begin{frame}
  
 \heading{What is an ODE? -- Examples}
@@ -252,9 +298,10 @@
 \end{itemize}
 
 \end{frame}
+}
 
 
-
+\rem{
 \begin{frame}
  
  \heading{What is an ODE?}
@@ -275,9 +322,13 @@ $$
  $$\dot x = f( x , t ) ,\qquad x(t=0) = x_0$$
 
 \end{frame}
+}
 
 
-\begin{frame}
+
+
+
+\begin{frame}[fragile]
   
  \heading{Numerical integration of ODEs}
   
@@ -288,13 +339,30 @@ $$
    \vspace{2ex}
 
    Example: Explicit Euler
-   \[ x(t + \Delta t ) = x(t) + \Delta t \,\cdot\, f(x(t),t) + \mathcal{O}(\Delta t^2)\]
+   \[ x(t + \Delta t ) = x(t) + \Delta t \,\cdot\, f(x(t),t) \]
 
    \vspace{2ex}
 
+   \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef array< double , 2 > state_type;
+
+struct ode {
+  void operator()( const state_type &x,
+    state_type &dxdt, double t) const {
+  ..
+  }
+};
+
+euler< state_type > stepper;
+stepper.do_step( ode , x , t , dt );
+\end{lstlisting}
+
+
+   \vspace{2ex}
+\rem{
    General scheme of order $s$
     \[ x(t) \,\, \mapsto \,\, x(t+\Delta t) \quad \quad \text{, or}\]
-    \[x(t + \Delta t) = \mathcal{F}_t x(t) + \mathcal{O}(\Delta t^{s+1})\]
+    \[x(t + \Delta t) = \mathcal{F}_t x(t) + \mathcal{O}(\Delta t^{s+1})\] }
 
 \end{frame}
 
@@ -316,8 +384,8 @@ $$\text{for all i :}  \quad \quad x_i(t+\Delta t) = x_i(t) + \Delta t \cdot f_i(
 
 \begin{lstlisting}
 typedef euler< state_type ,
-   value_type , deriv_type , time_type,
-   algebra , operations , resizer > stepper; 
+  value_type , deriv_type , time_type,
+  algebra , operations , resizer > stepper; 
 \end{lstlisting}
 
 
@@ -326,14 +394,6 @@ typedef euler< state_type ,
 \item Operations perform the elementary addition.
 \end{itemize}
 
-\vspace{2ex}
-
-Usage:
-
-\begin{lstlisting}
-  stepper s;
-  s.do_step( ode , x , t , dt );
-\end{lstlisting}
 
 \end{frame}
 
@@ -426,7 +486,7 @@ Dependence of chaoticity on parameter $R$
 
 \vspace{2ex}
 
-Solve many ODE in parallel $x_i,y_i,z_i,R_i$
+Solve many ODEs in parallel $x_i,y_i,z_i,R_i$
 
 \end{frame}
 
@@ -435,15 +495,15 @@ Solve many ODE in parallel $x_i,y_i,z_i,R_i$
  \heading{VexCL}
 
 \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
-typedef vex::vector< value_type >    vector_type;
-typedef vex::multivector< value_type, 3 > state_type;
+typedef vex::vector< double >    vector_type;
+typedef vex::multivector< double, 3 > state_type;
 
 struct sys_func
 {
   const vector_type &R;
   sys_func( const vector_type &_R ) : R( _R ) { }
   void operator()(
-    const state_type &x, state_type &dxdt, value_type t)
+    const state_type &x, state_type &dxdt, double t)
   {
     dxdt = std::tie( sigma * (x(1) - x(0)) ,
                      R * x(0) - x(1) - x(0) * x(2),
@@ -452,11 +512,11 @@ struct sys_func
 };
 
 odeint::runge_kutta4<
-  state_type , value_type , state_type , value_type ,
+  state_type , double , state_type , double ,
   odeint::vector_space_algebra , odeint::default_operations
   > stepper;
 
-odeint::integrate_const( stepper , sys_func( R ) , X , value_type(0.0) , t_max , dt );
+odeint::integrate_const( stepper , sys_func( R ) , X , double(0.0) , t_max , dt );
 
 \end{lstlisting}
 
@@ -467,24 +527,154 @@ odeint::integrate_const( stepper , sys_func( R ) , X , value_type(0.0) , t_max ,
 \begin{frame}[fragile]
  \heading{ViennaCL}
 
-show code
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+namespace vcl = viennacl;
+typedef viennacl::vector< double > vector_type;
+typedef fusion::vector< vector_type , vector_type ,
+  vector_type > state_type;
+
+odeint::runge_kutta4< state_type , double , state_type , double ,
+   odeint::fusion_algebra , odeint::viennacl_operations > stepper;
+
+odeint::integrate_const( stepper , sys_func( R ) , S , double(0.0) , t_max , dt );
+\end{lstlisting}
 
 \end{frame}
 
+
+\begin{frame}[fragile]
+ \heading{ViennaCL}
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+struct sys_func {
+  const vector_type &R;
+  sys_func( const vector_tyoe &_R ) : R( _R ) { }
+
+  void operator()( const state_type &x , state_type &dxdt , double t ) const
+  {
+    using namespace viennacl::generator;
+
+    static symbolic_vector<0,double> sym_dX;   // same for sym_dY, sym_dZ
+    ... 
+    static symbolic_vector<3,double> sym_X;    // same for sym_Y, sym_Z
+    ... 
+    static symbolic_vector<6,double> sym_R;
+    static cpu_symbolic_scalar<7,double> sym_sigma;
+    static cpu_symbolic_scalar<8,double> sym_b;
+
+    static custom_operation lorenz_op(
+      sym_dX = sym_sigma * (sym_Y - sym_X),
+      sym_dY = element_prod(sym_R, sym_X) - sym_Y - element_prod(sym_X, sym_Z),
+      sym_dZ = element_prod(sym_X, sym_Y) - sym_b * sym_Z,
+      "lorenz");
+
+    // unpack fusion vectors x, dxdt
+    const auto &X = fusion::at_c< 0 >( x );    // same for Y,Z;
+    ...
+    auto &dX = fusion::at_c<0>( dxdt );        // same for dY,dZ
+    ...
+
+    viennacl::ocl::enqueue(lorenz_op(dX, dY, dZ, X, Y, Z, R, sigma, b));
+  }
+};
+\end{lstlisting}
+
+\end{frame}
 
 
 
 \begin{frame}[fragile]
  \heading{Thrust}
 
- show code
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+typedef thrust::device_vector< double > state_type;
+
+struct lorenz_system
+{
+  struct lorenz_functor
+  {
+    template< class T >
+    __host__ __device__
+    void operator()( T t ) const
+    {
+      double R = thrust::get< 3 >( t );
+      double x = thrust::get< 0 >( t );
+      double y = thrust::get< 1 >( t );
+      double z = thrust::get< 2 >( t );
+      thrust::get< 4 >( t ) = sigma * ( y - x );
+      thrust::get< 5 >( t ) = R * x - y - x * z;
+      thrust::get< 6 >( t ) = -b * z + x * y ;
+    }
+ };
+
+  lorenz_system( size_t N , const state_type &beta )
+  : m_N( N ) , m_beta( beta ) { }
+
+  template< class State , class Deriv >
+  void operator()(  const State &x , Deriv &dxdt , double t ) const
+  {
+    thrust::for_each(
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) ,
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        m_beta.begin() ,
+        boost::begin( dxdt ) ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N  ) ) ,
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        boost::begin( x ) + 3 * m_N ,
+        m_beta.begin() ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N ,
+        boost::begin( dxdt ) + 3 * m_N  ) ) ,
+      lorenz_functor() );
+  }
+
+  size_t m_N;
+  const state_type &m_beta;
+};
+
+typedef runge_kutta4< state_type , double , state_type , double ,
+  thrust_algebra , thrust_operations > stepper_type;
+
+
+lorenz_system lorenz( N , beta );
+integrate_const( stepper_type() , lorenz , x , double(0.0) , t_max , dt );
+\end{lstlisting}
+
+
 \end{frame}
 
 
 \begin{frame}[fragile]
- \heading{MTL4}
+ \heading{CUDA MTL4}
 
- show code
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+typedef mtl::dense_vector<double> vector_type;
+typedef mtl::multi_vector<vector_type>  state_type;
+
+struct sys_func
+{
+  explicit sys_func(const vector_type &R) : R(R) { }
+
+  void operator()(const state_type& x, state_type& dxdt, double)
+  {
+    dxdt.at(0)= sigma * (x.at(1) - x.at(0));
+    dxdt.at(1)= R * x.at(0) - x.at(1) - x.at(0) * x.at(2);
+    dxdt.at(2)= x.at(0) * x.at(1) - b * x.at(2);
+  }
+
+  const vector_type &R;
+};
+
+odeint::runge_kutta4<state_type, double, state_type, double,
+  odeint::vector_space_algebra , odeint::default_operations> stepper;
+odeint::integrate_const(stepper, sys_func( R ), X, 0.0, t_max, dt);
+\end{lstlisting}
 
 \end{frame}
 
@@ -492,7 +682,8 @@ show code
 \begin{frame}[fragile]
  \heading{Performance}
 
- show picture
+ \centerline{\includegraphics[draft=false,width=0.8\textwidth]{lorenz_perf.pdf}}
+
 \end{frame}
 
 \begin{frame}[fragile]
