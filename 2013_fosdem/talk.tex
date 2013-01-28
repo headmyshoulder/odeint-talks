@@ -332,7 +332,7 @@ $$
   
  \heading{Numerical integration of ODEs}
   
-\vspace{4ex}
+\vspace{2ex}
     Find a numerical solution of an ODE and its IVP
     \[ \dot{x} = f(x,t) \,\,\textrm{,} \quad \quad x(t=0) = x_0\]
 
@@ -463,10 +463,20 @@ This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
  \heading{GPU Frameworks}
 
 \begin{itemize}
- \item VexCL - Vector Expression Framework, Sparse matrix support
- \item ViennaCL - Linear algebra framework - not restricted to OpenCL
- \item Thrust - general purpose algorithm library, mimicks the STL interface for CUDA devices
- \item MTL4 - Matrix template libary
+ \item \textbf{VexCL} - Vector Expression Framework
+   \begin{itemize} \item Sparse matrix support, expression templates \end{itemize}
+\end{itemize}
+\begin{itemize}
+ \item \textbf{ViennaCL} - Linear algebra framework 
+   \begin{itemize} \item Not restricted to OpenCL \end{itemize}
+\end{itemize}
+\begin{itemize}
+ \item \textbf{Thrust} - general purpose algorithm library
+   \begin{itemize} \item Mimicks the STL interface for CUDA devices \item No expression templates, heavy use of iterators \item Is shipped with CUDA \end{itemize}
+\end{itemize}
+\begin{itemize}
+ \item \textbf{MTL4} - Cuda version of the Matrix template libary
+   \begin{itemize} \item Expression templates \end{itemize}
 \end{itemize}
 
 \end{frame}
@@ -487,6 +497,10 @@ Dependence of chaoticity on parameter $R$
 \vspace{2ex}
 
 Solve many ODEs in parallel $x_i,y_i,z_i,R_i$
+
+\vspace{2ex}
+
+\centerline{\includegraphics[draft=false,width=0.5\textwidth]{lorenz.jpg}}
 
 \end{frame}
 
@@ -516,7 +530,8 @@ odeint::runge_kutta4<
   odeint::vector_space_algebra , odeint::default_operations
   > stepper;
 
-odeint::integrate_const( stepper , sys_func( R ) , X , double(0.0) , t_max , dt );
+odeint::integrate_const( stepper , sys_func( R ) ,
+  X , t_start , t_max , dt );
 
 \end{lstlisting}
 
@@ -527,16 +542,20 @@ odeint::integrate_const( stepper , sys_func( R ) , X , double(0.0) , t_max , dt 
 \begin{frame}[fragile]
  \heading{ViennaCL}
 
-\begin{lstlisting}[basicstyle=\tiny\ttfamily]
-namespace vcl = viennacl;
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 typedef viennacl::vector< double > vector_type;
-typedef fusion::vector< vector_type , vector_type ,
+typedef fusion::vector<
+  vector_type ,
+  vector_type ,
   vector_type > state_type;
 
-odeint::runge_kutta4< state_type , double , state_type , double ,
-   odeint::fusion_algebra , odeint::viennacl_operations > stepper;
+odeint::runge_kutta4<
+  state_type , double , state_type , double ,
+  odeint::fusion_algebra , odeint::viennacl_operations
+> stepper;
 
-odeint::integrate_const( stepper , sys_func( R ) , S , double(0.0) , t_max , dt );
+odeint::integrate_const( stepper , sys_func( R ) ,
+  X , t_start , t_max , dt );
 \end{lstlisting}
 
 \end{frame}
@@ -587,12 +606,75 @@ struct sys_func {
  \heading{Thrust}
 
 
-\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 typedef thrust::device_vector< double > state_type;
 
-struct lorenz_system
+struct lorenz_system { ... };
+
+typedef runge_kutta4<
+  state_type , double , state_type , double ,
+  thrust_algebra , thrust_operations > stepper_type;
+
+
+integrate_const( stepper_type() , sys_func( R ) ,
+  X , double(0.0) , t_max , dt );
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Thrust}
+
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+struct sys_func
 {
-  struct lorenz_functor
+  struct lorenz_functor { ... }
+
+  sys_func( const state_type &R ) : m_N( R.size() ) , m_R( R ) { }
+
+  template< class State , class Deriv >
+  void operator()(  const State &x , Deriv &dxdt , double t ) const
+  {
+    thrust::for_each(
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) ,
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        m_R.begin() ,
+        boost::begin( dxdt ) ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N  ) ) ,
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        boost::begin( x ) + 3 * m_N ,
+        m_R.begin() ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N ,
+        boost::begin( dxdt ) + 3 * m_N  ) ) ,
+      lorenz_functor() );
+  }
+
+  size_t m_N;
+  const state_type &m_R;
+};
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Thrust}
+
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+struct sys_func
+{
+  struct lorenz_functor { ... }
   {
     template< class T >
     __host__ __device__
@@ -606,48 +688,14 @@ struct lorenz_system
       thrust::get< 5 >( t ) = R * x - y - x * z;
       thrust::get< 6 >( t ) = -b * z + x * y ;
     }
- };
+  };
 
-  lorenz_system( size_t N , const state_type &beta )
-  : m_N( N ) , m_beta( beta ) { }
-
-  template< class State , class Deriv >
-  void operator()(  const State &x , Deriv &dxdt , double t ) const
-  {
-    thrust::for_each(
-      thrust::make_zip_iterator( thrust::make_tuple(
-        boost::begin( x ) ,
-        boost::begin( x ) + m_N ,
-        boost::begin( x ) + 2 * m_N ,
-        m_beta.begin() ,
-        boost::begin( dxdt ) ,
-        boost::begin( dxdt ) + m_N ,
-        boost::begin( dxdt ) + 2 * m_N  ) ) ,
-      thrust::make_zip_iterator( thrust::make_tuple(
-        boost::begin( x ) + m_N ,
-        boost::begin( x ) + 2 * m_N ,
-        boost::begin( x ) + 3 * m_N ,
-        m_beta.begin() ,
-        boost::begin( dxdt ) + m_N ,
-        boost::begin( dxdt ) + 2 * m_N ,
-        boost::begin( dxdt ) + 3 * m_N  ) ) ,
-      lorenz_functor() );
-  }
-
-  size_t m_N;
-  const state_type &m_beta;
+  ...
 };
-
-typedef runge_kutta4< state_type , double , state_type , double ,
-  thrust_algebra , thrust_operations > stepper_type;
-
-
-lorenz_system lorenz( N , beta );
-integrate_const( stepper_type() , lorenz , x , double(0.0) , t_max , dt );
 \end{lstlisting}
 
-
 \end{frame}
+
 
 
 \begin{frame}[fragile]
@@ -690,12 +738,18 @@ odeint::integrate_const(stepper, sys_func( R ), X, 0.0, t_max, dt);
  \heading{Conclusion}
 
  \begin{itemize}
-  \item Usability - they differ
-  \item Performance - they are equal more or less
+  \item The GPU libraries differ my usability
+  \begin{itemize} \item Expression templates simply code and make them more expressfull \end{itemize}
+  \item Performance is more or less equal
+  \begin{itemize} \item OpenCL has an overhead for generating the kernels during runtime \end{itemize}
   \item Optimize by hand
  \end{itemize}
 
- Programming CUDA and OpenCL: A Case Study Using Modern C++ Libraries. Denis Demidov, Karsten Ahnert, Karl Rupp, Peter Gottschling. arXiv:1212.6326.
+ \vspace{2ex}
+ {\scriptsize Programming CUDA and OpenCL: A Case Study Using Modern C++ Libraries. Denis Demidov, Karsten Ahnert, Karl Rupp, Peter Gottschling. arXiv:1212.6326.}
+
+ \vspace{2ex}
+ {\scriptsize All code is available from {\tt https://github.com/ddemidov/gpgpu\_with\_modern\_cpp} }
 
 \end{frame}
 
