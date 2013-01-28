@@ -20,6 +20,7 @@ if ( LATEX_COMPILER )
                lyap.jpg
                turbulence.jpg
                lattices.jpg
+               lorenz.jpg
 	DEFAULT_PDF
 	MANGLE_TARGET_NAMES
 	)
