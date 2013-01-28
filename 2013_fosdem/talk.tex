@@ -1,0 +1,719 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemesplit}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{amsmath,amssymb}
+\usepackage{multimedia}
+\usepackage{times}
+\usepackage{ulem}
+% \usepackage{memoir}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage{color}
+\usepackage{rotating}
+
+\newcommand{\re}{\text{Re}}
+\newcommand{\im}{\text{Im}}
+\newcommand{\de}{\mbox{d}}
+\newcommand{\eref}[1]{(\ref{#1})}
+\newcommand{\ii}{\text{i}}
+\newcommand{\ee}{\text{e}}
+\newcommand{\mathbi}[1]{\textbf{\em #1}}
+\newcommand{\rem}[1]{}
+
+\newcommand{\heading}[1]{\centerline{\Large #1} \vspace{0.5em}}
+%\newcommand{\heading}[1]{\frametitle{\centerline{#1}}}
+
+\newcommand{\odeint}[0]{odeint}
+
+
+% Layout specification
+
+% \usetheme{AnnArbor}
+% \usetheme{Antibes}
+% \usetheme{Bergen}
+% \usetheme{Berkeley}
+% \usetheme{Berlin}
+% \usetheme{Boadilla}
+% \usetheme{boxes}
+% \usetheme{CambridgeUS}
+% \usetheme{Copenhagen}
+% \usetheme{Darmstadt}
+% \usetheme{default}
+% \usetheme{Dresden}
+% \usetheme{Frankfurt}
+% \usetheme{Goettingen}
+% \usetheme{Hannover}
+% \usetheme{Ilmenau}
+% \usetheme{JuanLesPins}
+% \usetheme{Luebeck}
+% \usetheme{Madrid}
+% \usetheme{Malmoe}
+% \usetheme{Marburg}
+% \usetheme{Montpellier}
+% \usetheme{PaloAlto}
+% \usetheme{Pittsburgh}
+% \usetheme{Rochester}
+% \usetheme{Singapore}
+% \usetheme{Szeged}
+\usetheme{Warsaw}
+
+% \usecolortheme{albatross}
+% \usecolortheme{beaver}
+% \usecolortheme{beetle}
+% \usecolortheme{crane}
+% \usecolortheme{default}
+% \usecolortheme{dolphin}
+% \usecolortheme{dove}
+% \usecolortheme{fly}
+% \usecolortheme{lily}
+% \usecolortheme{orchid}
+% \usecolortheme{rose}
+% \usecolortheme{seagull}
+% \usecolortheme{seahorse}
+% \usecolortheme{sidebartab}
+% \usecolortheme{structure}
+% \usecolortheme{whale}
+% \usecolortheme{wolverine}
+
+% \usefonttheme{default}
+% \usefonttheme{professionalfonts}
+% \usefonttheme{serif}
+% \usefonttheme{structurebold}
+% \usefonttheme{structureitalicserif}
+% \usefonttheme{structuresmallcapsserif}
+
+% \useinnertheme{circles}
+% \useinnertheme{default}
+% \useinnertheme{inmargin}
+% \useinnertheme{rectangles}
+% \useinnertheme{rounded}
+
+% \useoutertheme{default}
+% \useoutertheme{infolines}
+% \useoutertheme{miniframes}
+% \useoutertheme{shadow}
+% \useoutertheme{sidebar}
+% \useoutertheme{smoothbars}
+% \useoutertheme{smoothtree}
+% \useoutertheme{split}
+% \useoutertheme{tree}
+
+
+
+% Meta
+
+\title[odeint]{Solving ODEs with CUDA and OpenCL}
+\subtitle[odeint]{Using Boost.Odeint}
+\author[Karsten Ahnert]{Karsten Ahnert$^{1,2}$ \\ {\vspace{2ex} \scriptsize Mario Mulansky$^2$, Denis Demidov$^3$, Karl Rupp$^4$, and Peter Gottschling$^5$}}
+\institute[Universit\"at Potsdam]{\fontsize{5}{5} \selectfont
+%\tiny 
+$^1$ Ambrosys GmbH, Potsdam $^2$ Institut f\"ur Physik und Astronomie, Universit\"at Potsdam\\
+$^3$ Kazan Branch of Joint Supercomputer Center, Russian Academy of Sciences, Kazan \\
+$^4$ Mathematics and Computer Science Division, Argonne National Laboratory\\
+$^5$ SimuNova, Dresden \& Inst. Scientific Computing, TU Dresden
+}
+\date{Februar 2, 2013}
+%\logo{\pgfimage[width=2cm,height=2cm]{logo}}
+\titlegraphic{\includegraphics[width=4cm]{ambrosys}\hspace{5ex}\includegraphics[width=1.5cm,height=1.5cm]{logo}\hspace{7ex}}
+\subject{Subject}
+\keywords{Keyword1,Keyword2}
+
+
+
+\definecolor{dark-gray}{gray}{0.15}
+\definecolor{light-gray}{gray}{0.8}
+\definecolor{lighter-gray}{gray}{0.9}
+
+\definecolor{dark-green}{rgb}{0,0.4,0}
+\definecolor{dark-red}{rgb}{0.2,0,0}
+
+\newcommand{\highlight}[1]{\bf #1}
+
+\lstset{
+         basicstyle=\small\ttfamily, % Standardschrift
+         %numbers=left,               % Ort der Zeilennummern
+         numberstyle=\tiny,          % Stil der Zeilennummern
+         %stepnumber=2,               % Abstand zwischen den Zeilennummern
+         numbersep=0pt,              % Abstand der Nummern zum Text
+         tabsize=2,                  % Groesse von Tabs
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen
+         frame=single,         
+         backgroundcolor=\color{lighter-gray},
+         tabsize=2,
+         keywordstyle=\color{dark-green},
+         identifierstyle=,
+         commentstyle=\color{dark-gray}\normalfont\rmfamily\itshape,
+         stringstyle=\color{dark-red},
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         xleftmargin=10pt,
+         xrightmargin=10pt,
+         framexleftmargin=5pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         language=c++,
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?        
+ }
+\lstloadlanguages{C++}
+
+
+% What is shown
+
+\beamertemplatenavigationsymbolsempty
+  \setbeamertemplate{footline}{}
+%\setbeamertemplate{footline}{\insertframenumber}
+\setbeamertemplate{headline}{}
+
+
+\parindent0pt
+
+
+
+
+
+
+
+
+
+
+
+\begin{document}
+
+
+
+\frame{
+  \titlepage
+}
+
+\rem{
+\begin{frame}
+  \heading{Outline}
+
+  \tableofcontents
+\end{frame}
+}
+
+
+\begin{frame}
+ 
+\heading{Motivation -- Solve large systems of ODEs}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Lattice systems
+
+  \vspace{3ex}
+
+  \includegraphics[draft=false,width=0.8\textwidth]{lattices.jpg}
+\end{center} \end{minipage}
+\begin{minipage}{0.48\textwidth} \begin{center}
+  Discretiztations of PDEs
+
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.7\textwidth]{turbulence.jpg}
+\end{center} \end{minipage}
+
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}\begin{center}
+  ODEs on graphs
+
+  \includegraphics[draft=false,width=0.7\textwidth]{neuron.jpg}
+ \end{center}\end{minipage}
+\begin{minipage}{0.48\textwidth}\begin{center}
+  Parameter studies
+ 
+  \vspace{0.5ex}
+  \includegraphics[draft=false,width=0.59\textwidth]{lyap.jpg}
+ \end{center} \end{minipage}
+
+\end{frame}
+
+\rem{
+\begin{frame}
+ \heading{Introduction}
+
+ \begin{itemize}
+  \item Solve large systems of coupled ODEs
+  \item Use odeint - Boost Library
+  \item Compare several open source frameworks for GPGPU computation
+  \item VexCL, ViennaCL, Thrust, MTL
+ \end{itemize}
+
+\end{frame}
+}
+
+\rem{
+\begin{frame}
+ 
+\heading{What is an ODE? -- Examples}
+
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Newtons equations
+
+  \includegraphics[draft=false,width=0.8\textwidth]{solar_system.jpg}
+ \end{center}
+\end{minipage}
+%\pause
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Reaction and relaxation equations (i.e. blood alcohol content, chemical reaction rates)
+ \end{center}
+\end{minipage}
+%\pause
+\vspace{2ex}
+
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Granular systems
+
+  \includegraphics[draft=false,width=0.65\textwidth]{granular_system.png}
+ \end{center}
+\end{minipage}
+%\pause
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+  Interacting neurons
+
+  \includegraphics[draft=false,width=0.6\textwidth]{neuron.jpg}
+ \end{center}
+\end{minipage}
+%\pause
+\vspace{2ex}
+
+\begin{itemize}
+ \item Many examples in physics, biology, chemistry, social sciences
+ \item Fundamental in mathematical modelling
+\end{itemize}
+
+\end{frame}
+}
+
+
+\rem{
+\begin{frame}
+ 
+ \heading{What is an ODE?}
+
+ $$\frac{\de x(t)}{\de t} = f\big(x(t) , t\big) \qquad \qquad {\scriptsize \text{short form}} \qquad \dot{x} = f(x,t)
+$$
+
+ \begin{itemize}
+  \item $x(t)$ -- dependent variable
+  \item $t$ -- indenpendent variable (time)
+  \item $f(x,t)$ -- defines the ODE
+ \end{itemize}
+
+\vspace{4ex}
+
+ Initial Value Problem (IVP):
+
+ $$\dot x = f( x , t ) ,\qquad x(t=0) = x_0$$
+
+\end{frame}
+}
+
+
+
+
+
+\begin{frame}[fragile]
+  
+ \heading{Numerical integration of ODEs}
+  
+\vspace{4ex}
+    Find a numerical solution of an ODE and its IVP
+    \[ \dot{x} = f(x,t) \,\,\textrm{,} \quad \quad x(t=0) = x_0\]
+
+   \vspace{2ex}
+
+   Example: Explicit Euler
+   \[ x(t + \Delta t ) = x(t) + \Delta t \,\cdot\, f(x(t),t) \]
+
+   \vspace{2ex}
+
+   \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef array< double , 2 > state_type;
+
+struct ode {
+  void operator()( const state_type &x,
+    state_type &dxdt, double t) const {
+  ..
+  }
+};
+
+euler< state_type > stepper;
+stepper.do_step( ode , x , t , dt );
+\end{lstlisting}
+
+
+   \vspace{2ex}
+\rem{
+   General scheme of order $s$
+    \[ x(t) \,\, \mapsto \,\, x(t+\Delta t) \quad \quad \text{, or}\]
+    \[x(t + \Delta t) = \mathcal{F}_t x(t) + \mathcal{O}(\Delta t^{s+1})\] }
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+
+ \heading{Algebras and operations}
+
+ \vspace{2ex}
+
+Euler method
+
+$$\text{for all i :}  \quad \quad x_i(t+\Delta t) = x_i(t) + \Delta t \cdot f_i(x)$$
+
+\vspace{2ex}
+
+\begin{lstlisting}
+typedef euler< state_type ,
+  value_type , deriv_type , time_type,
+  algebra , operations , resizer > stepper; 
+\end{lstlisting}
+
+
+\begin{itemize}
+\item Algebras perform the iteration over $i$.
+\item Operations perform the elementary addition.
+\end{itemize}
+
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}[fragile]
+ \heading{Algebras and operations}
+
+\vspace{1ex}
+Algebra has to have defined the following member functions:
+
+\begin{itemize}
+ \item \lstinline+algebra.for_each1( x1 , unary_operation );+
+ \item \lstinline+algebra.for_each2( x1, x2, binary_operation );+
+ \item ...
+\end{itemize}
+
+\vspace{2ex}
+
+\lstinline+Operations+ is a class with the following (static) functors:
+\begin{itemize}
+ \item \lstinline+scale_sum1       // calculates y = a1*x1+
+ \item \lstinline{scale_sum2       // calculates y = a1*x1 + a2*x2}
+ \item ...
+\end{itemize}
+
+\vspace{2ex}
+\begin{lstlisting}
+algebra.for_each3( x1 , x0 , F1 ,
+   Operations::scale_sum2( 1.0, b1*dt );
+\end{lstlisting}
+
+This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+ \heading{Algebra and operations}
+
+ \begin{itemize}
+  \item {\tt range\_algebra} -- Default algebra, supporting Boost.Range
+  \item {\tt default\_operations} -- Default operations
+  \item {\tt vector\_space\_algebra} -- Types with vector space
+    semantic, i.e. \lstinline{y = a1*x1 + a2*x2}. Can be used by all
+    types supporting expression templates.
+  \item {\tt thrust\_algebra}, {\tt thrust\_operations} -- Thrust's device vectors
+ \end{itemize}
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+ \heading{GPU Frameworks}
+
+\begin{itemize}
+ \item VexCL - Vector Expression Framework, Sparse matrix support
+ \item ViennaCL - Linear algebra framework - not restricted to OpenCL
+ \item Thrust - general purpose algorithm library, mimicks the STL interface for CUDA devices
+ \item MTL4 - Matrix template libary
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Example - Parameter study of Lorenz system}
+
+\begin{eqnarray*}
+\dot{x} & = & - \sigma ( y - x ) \\
+\dot{y} & = & R x - y - x z \\
+\dot{z} & = & - b z + x y
+\end{eqnarray*}
+
+Dependence of chaoticity on parameter $R$
+
+\vspace{2ex}
+
+Solve many ODEs in parallel $x_i,y_i,z_i,R_i$
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{VexCL}
+
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+typedef vex::vector< double >    vector_type;
+typedef vex::multivector< double, 3 > state_type;
+
+struct sys_func
+{
+  const vector_type &R;
+  sys_func( const vector_type &_R ) : R( _R ) { }
+  void operator()(
+    const state_type &x, state_type &dxdt, double t)
+  {
+    dxdt = std::tie( sigma * (x(1) - x(0)) ,
+                     R * x(0) - x(1) - x(0) * x(2),
+                     x(0) * x(1) - b * x(2) );
+  }
+};
+
+odeint::runge_kutta4<
+  state_type , double , state_type , double ,
+  odeint::vector_space_algebra , odeint::default_operations
+  > stepper;
+
+odeint::integrate_const( stepper , sys_func( R ) , X , double(0.0) , t_max , dt );
+
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{ViennaCL}
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+namespace vcl = viennacl;
+typedef viennacl::vector< double > vector_type;
+typedef fusion::vector< vector_type , vector_type ,
+  vector_type > state_type;
+
+odeint::runge_kutta4< state_type , double , state_type , double ,
+   odeint::fusion_algebra , odeint::viennacl_operations > stepper;
+
+odeint::integrate_const( stepper , sys_func( R ) , S , double(0.0) , t_max , dt );
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{ViennaCL}
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+struct sys_func {
+  const vector_type &R;
+  sys_func( const vector_tyoe &_R ) : R( _R ) { }
+
+  void operator()( const state_type &x , state_type &dxdt , double t ) const
+  {
+    using namespace viennacl::generator;
+
+    static symbolic_vector<0,double> sym_dX;   // same for sym_dY, sym_dZ
+    ... 
+    static symbolic_vector<3,double> sym_X;    // same for sym_Y, sym_Z
+    ... 
+    static symbolic_vector<6,double> sym_R;
+    static cpu_symbolic_scalar<7,double> sym_sigma;
+    static cpu_symbolic_scalar<8,double> sym_b;
+
+    static custom_operation lorenz_op(
+      sym_dX = sym_sigma * (sym_Y - sym_X),
+      sym_dY = element_prod(sym_R, sym_X) - sym_Y - element_prod(sym_X, sym_Z),
+      sym_dZ = element_prod(sym_X, sym_Y) - sym_b * sym_Z,
+      "lorenz");
+
+    // unpack fusion vectors x, dxdt
+    const auto &X = fusion::at_c< 0 >( x );    // same for Y,Z;
+    ...
+    auto &dX = fusion::at_c<0>( dxdt );        // same for dY,dZ
+    ...
+
+    viennacl::ocl::enqueue(lorenz_op(dX, dY, dZ, X, Y, Z, R, sigma, b));
+  }
+};
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+ \heading{Thrust}
+
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+typedef thrust::device_vector< double > state_type;
+
+struct lorenz_system
+{
+  struct lorenz_functor
+  {
+    template< class T >
+    __host__ __device__
+    void operator()( T t ) const
+    {
+      double R = thrust::get< 3 >( t );
+      double x = thrust::get< 0 >( t );
+      double y = thrust::get< 1 >( t );
+      double z = thrust::get< 2 >( t );
+      thrust::get< 4 >( t ) = sigma * ( y - x );
+      thrust::get< 5 >( t ) = R * x - y - x * z;
+      thrust::get< 6 >( t ) = -b * z + x * y ;
+    }
+ };
+
+  lorenz_system( size_t N , const state_type &beta )
+  : m_N( N ) , m_beta( beta ) { }
+
+  template< class State , class Deriv >
+  void operator()(  const State &x , Deriv &dxdt , double t ) const
+  {
+    thrust::for_each(
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) ,
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        m_beta.begin() ,
+        boost::begin( dxdt ) ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N  ) ) ,
+      thrust::make_zip_iterator( thrust::make_tuple(
+        boost::begin( x ) + m_N ,
+        boost::begin( x ) + 2 * m_N ,
+        boost::begin( x ) + 3 * m_N ,
+        m_beta.begin() ,
+        boost::begin( dxdt ) + m_N ,
+        boost::begin( dxdt ) + 2 * m_N ,
+        boost::begin( dxdt ) + 3 * m_N  ) ) ,
+      lorenz_functor() );
+  }
+
+  size_t m_N;
+  const state_type &m_beta;
+};
+
+typedef runge_kutta4< state_type , double , state_type , double ,
+  thrust_algebra , thrust_operations > stepper_type;
+
+
+lorenz_system lorenz( N , beta );
+integrate_const( stepper_type() , lorenz , x , double(0.0) , t_max , dt );
+\end{lstlisting}
+
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{CUDA MTL4}
+
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+typedef mtl::dense_vector<double> vector_type;
+typedef mtl::multi_vector<vector_type>  state_type;
+
+struct sys_func
+{
+  explicit sys_func(const vector_type &R) : R(R) { }
+
+  void operator()(const state_type& x, state_type& dxdt, double)
+  {
+    dxdt.at(0)= sigma * (x.at(1) - x.at(0));
+    dxdt.at(1)= R * x.at(0) - x.at(1) - x.at(0) * x.at(2);
+    dxdt.at(2)= x.at(0) * x.at(1) - b * x.at(2);
+  }
+
+  const vector_type &R;
+};
+
+odeint::runge_kutta4<state_type, double, state_type, double,
+  odeint::vector_space_algebra , odeint::default_operations> stepper;
+odeint::integrate_const(stepper, sys_func( R ), X, 0.0, t_max, dt);
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \heading{Performance}
+
+ \centerline{\includegraphics[draft=false,width=0.8\textwidth]{lorenz_perf.pdf}}
+
+\end{frame}
+
+\begin{frame}[fragile]
+ \heading{Conclusion}
+
+ \begin{itemize}
+  \item Usability - they differ
+  \item Performance - they are equal more or less
+  \item Optimize by hand
+ \end{itemize}
+
+ Programming CUDA and OpenCL: A Case Study Using Modern C++ Libraries. Denis Demidov, Karsten Ahnert, Karl Rupp, Peter Gottschling. arXiv:1212.6326.
+
+\end{frame}
+
+
+
+
+
+\rem{
+\input{introduction}
+
+\input{tutorial}
+
+%\input{technical_details}
+
+\input{conclusion}
+
+%\input{old_stuff}
+}
+
+
+\end{document}
