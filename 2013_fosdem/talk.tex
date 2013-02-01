@@ -464,19 +464,33 @@ This computes: $\vec x_1 = 1.0\cdot \vec x_0 + b_1\Delta t\cdot \vec F_1$.
 
 \begin{itemize}
  \item \textbf{VexCL} - Vector Expression Framework
-   \begin{itemize} \item Sparse matrix support, expression templates \end{itemize}
+   \begin{itemize}
+     \item Sparse matrix support, expression templates
+     \item {\tt github.com/ddemidov/vexcl}
+   \end{itemize}
 \end{itemize}
 \begin{itemize}
  \item \textbf{ViennaCL} - Linear algebra framework 
-   \begin{itemize} \item Not restricted to OpenCL \end{itemize}
+   \begin{itemize}
+     \item Not restricted to OpenCL
+     \item {\tt sourceforge.net/projects/viennacl}
+   \end{itemize}
 \end{itemize}
 \begin{itemize}
  \item \textbf{Thrust} - general purpose algorithm library
-   \begin{itemize} \item Mimicks the STL interface for CUDA devices \item No expression templates, heavy use of iterators \item Is shipped with CUDA \end{itemize}
+   \begin{itemize}
+     \item Mimicks the STL interface for CUDA devices
+     \item No expression templates, heavy use of iterators
+     \item Is shipped with CUDA
+       \item {\tt thrust.github.com}
+   \end{itemize}
 \end{itemize}
 \begin{itemize}
- \item \textbf{MTL4} - Cuda version of the Matrix template libary
-   \begin{itemize} \item Expression templates \end{itemize}
+ \item \textbf{MTL4} - CUDA version of the Matrix template libary
+   \begin{itemize}
+     \item Expression templates
+     \item {\tt www.simunova.com/gpu\_mtl4}
+   \end{itemize}
 \end{itemize}
 
 \end{frame}
@@ -549,6 +563,8 @@ typedef fusion::vector<
   vector_type ,
   vector_type > state_type;
 
+struct sys_func { ... };   // Details come soon
+
 odeint::runge_kutta4<
   state_type , double , state_type , double ,
   odeint::fusion_algebra , odeint::viennacl_operations
@@ -569,8 +585,7 @@ struct sys_func {
   const vector_type &R;
   sys_func( const vector_tyoe &_R ) : R( _R ) { }
 
-  void operator()( const state_type &x , state_type &dxdt , double t ) const
-  {
+  void operator()( const state_type &x , state_type &dxdt , double t ) const {
     using namespace viennacl::generator;
 
     static symbolic_vector<0,double> sym_dX;   // same for sym_dY, sym_dZ
@@ -609,7 +624,7 @@ struct sys_func {
 \begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 typedef thrust::device_vector< double > state_type;
 
-struct lorenz_system { ... };
+struct sys_func { ... };   // Details come soon
 
 typedef runge_kutta4<
   state_type , double , state_type , double ,
@@ -631,7 +646,7 @@ integrate_const( stepper_type() , sys_func( R ) ,
 \begin{lstlisting}[basicstyle=\tiny\ttfamily]
 struct sys_func
 {
-  struct lorenz_functor { ... }
+  struct lorenz_functor { ... }   // Details come soon
 
   sys_func( const state_type &R ) : m_N( R.size() ) , m_R( R ) { }
 
@@ -674,7 +689,7 @@ struct sys_func
 \begin{lstlisting}[basicstyle=\tiny\ttfamily]
 struct sys_func
 {
-  struct lorenz_functor { ... }
+  struct lorenz_functor
   {
     template< class T >
     __host__ __device__
@@ -738,8 +753,8 @@ odeint::integrate_const(stepper, sys_func( R ), X, 0.0, t_max, dt);
  \heading{Conclusion}
 
  \begin{itemize}
-  \item The GPU libraries differ my usability
-  \begin{itemize} \item Expression templates simply code and make them more expressfull \end{itemize}
+  \item The GPU libraries differ by usability
+  \begin{itemize} \item Expression templates simplify code and make them more expressivness \end{itemize}
   \item Performance is more or less equal
   \begin{itemize} \item OpenCL has an overhead for generating the kernels during runtime \end{itemize}
   \item Optimize by hand
@@ -748,8 +763,10 @@ odeint::integrate_const(stepper, sys_func( R ), X, 0.0, t_max, dt);
  \vspace{2ex}
  {\scriptsize Programming CUDA and OpenCL: A Case Study Using Modern C++ Libraries. Denis Demidov, Karsten Ahnert, Karl Rupp, Peter Gottschling. arXiv:1212.6326.}
 
- \vspace{2ex}
- {\scriptsize All code is available from {\tt https://github.com/ddemidov/gpgpu\_with\_modern\_cpp} }
+ \vspace{4ex}
+ \begin{center}
+   \rem{\scriptsize} All code is available from \\ {\tt github.com/ddemidov/gpgpu\_with\_modern\_cpp}
+ \end{center}
 
 \end{frame}
 
