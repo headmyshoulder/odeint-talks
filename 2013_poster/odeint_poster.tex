@@ -91,7 +91,7 @@
     
     \vspace{1cm}
     
-    \begin{blockwh}{Includes}{23.35cm}
+    \begin{blockwh}{Provides}{23.35cm}
       \begin{itemize}
 	\item Runge-Kutta schemes:
 	\begin{itemize}
@@ -167,7 +167,7 @@ int main(int argc, char **argv)
   \begin{column}{0.495\linewidth}
     \begin{blockwh}{Independent Algorithms}{24.5cm}
       \begin{itemize}
-       \item Separate algorithm from computational details
+       \item Separates algorithms from computational details
        \item Container-independent implementation
        \item Memory management detached from algorithms
        \item Each part interchangeable by the user
@@ -177,9 +177,9 @@ int main(int argc, char **argv)
       \vspace{.5em}
       \begin{itemize}
        \item Supports any container as state type
-       \item Natively supports complex numbers
+       \item Native support of complex numbers
        \item Works with many linear algebra libraries: MTL, uBlas, eigen
-       \item \textbf{Runs on GPUs} (via Cuda/Thrust or OpenCL/vexCL)
+       \item \textbf{Runs on GPUs} (via CUDA/Thrust or OpenCL/vexCL)
        \item Can be used with multi-precision types (e.g.\ Boost.Multiprecision)
        \item Easily extendable to run with your own state type, e.g.\ graphs or complex networks
        \item Parallelized backends available soon (OpenMP, MPI, HPX)
